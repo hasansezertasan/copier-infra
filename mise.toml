@@ -1,6 +1,6 @@
 [tools]
 terraform = "1.16.1"
-gh = "2.100.0"
+gh = "2.102.0"
 jq = "1.8.2"
 
 [settings]
