@@ -9,10 +9,11 @@ This repository is the consuming infrastructure repository for `infra-copilot`.
   `.copier-answers.yml`, which also writes the state backend into both Terraform
   roots' `backend.tf`. Change those values with `uvx copier update` (review the diff),
   never by hand, and never `uvx copier recopy` over local edits. Commit the answers file,
-  config, and Terraform roots together. Changing any answer that selects
-  where state is stored (`backend`, `hcp_org`, `state_backend`, `state_bucket`, `state_prefix`,
-  `azure_storage_account`, `azure_resource_group`, and `state_region` for s3) is a state
-  migration; follow infra-copilot's runbook. `state_lock_table` only changes locking.
+  config, and Terraform roots together. Changing any answer that sets the
+  state object's coordinates (`backend`, `hcp_org`, `state_backend`, `state_bucket`,
+  `state_prefix`, `azure_storage_account`) is a state migration; follow infra-copilot's
+  runbook. Routing and locking answers (`state_lock_table`, `state_region`,
+  `azure_resource_group`) configure access to the same object and are not migrations.
 - Record durable architecture, authentication, state, and safety choices in
   `.infra-copilot/decisions.md`.
 {% if backend == 'hcp' -%}
