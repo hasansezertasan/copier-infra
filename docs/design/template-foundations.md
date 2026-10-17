@@ -95,7 +95,7 @@ organization Terraform's `cloud` block requires, or a `gcs`, `s3` or `azurerm` b
 per-root state prefix. See `docs/adr/0001-offer-object-storage-and-hcp-backends.md`. Because placeholders never reach a rendered
 repository, the contract validator can reject any remaining `replace-with-` value.
 
-Changing an identifier means re-running `copier update` or `copier recopy`, so the config
+Changing an identifier means re-running `copier update`, so the config
 and the Terraform literals cannot drift. The validator still checks that they agree.
 
 Durable decisions live in `.infra-copilot/decisions.md`. Credentials never belong in
