@@ -5,7 +5,7 @@
   ],
   "packageRules": [
     {
-      "description": "Terraform is pinned in .config/mise.toml (mise manager) and in each root's versions.tf required_version (terraform manager). Group them so one PR bumps every copy together; the contract validator rejects a PR that moves only one.",
+      "description": "Terraform is pinned in mise.toml (mise manager) and in each root's versions.tf required_version (terraform manager). Group them so one PR bumps every copy together; the contract validator rejects a PR that moves only one.",
       "matchPackageNames": ["terraform", "hashicorp/terraform"],
       "groupName": "terraform"
     }
