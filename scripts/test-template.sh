@@ -42,10 +42,25 @@ for entry in "${cases[@]}"; do
 done
 
 # The rejection paths must reject.
-if copier copy --trust --defaults "${common[@]}" --data backend=object-storage \
-  --data state_backend=gcs --data state_bucket=Bad_Bucket "$root" "$work/bad" >/dev/null 2>&1; then
-  printf 'an invalid state_bucket was accepted\n' >&2
-  exit 1
-fi
+rejects() {
+  local label=$1
+  shift
+  if copier copy --trust --defaults "${common[@]}" --data backend=object-storage "$@" \
+    "$root" "$work/bad-$label" >/dev/null 2>&1; then
+    printf 'accepted an invalid answer: %s\n' "$label" >&2
+    exit 1
+  fi
+}
+rejects gcs-uppercase --data state_backend=gcs --data state_bucket=Bad_Bucket
+rejects gcs-short --data state_backend=gcs --data state_bucket=ab
+rejects gcs-trailing-hyphen --data state_backend=gcs --data state_bucket=state-
+rejects s3-underscore --data state_backend=s3 --data state_bucket=foo_bar \
+  --data state_region=us-east-1 --data state_lock_table=locks
+rejects s3-long --data state_backend=s3 --data "state_bucket=$(printf 'a%.0s' {1..64})" \
+  --data state_region=us-east-1 --data state_lock_table=locks
+rejects azure-double-hyphen --data state_backend=azurerm --data state_bucket=a--b \
+  --data azure_storage_account=examplestate --data azure_resource_group=rg --data state_region=westeurope
+rejects azure-underscore --data state_backend=azurerm --data state_bucket=tf_state \
+  --data azure_storage_account=examplestate --data azure_resource_group=rg --data state_region=westeurope
 
 printf 'rendered templates are valid\n'
