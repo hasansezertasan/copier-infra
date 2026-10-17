@@ -1,9 +1,11 @@
 name: CI
 
+# Unfiltered on purpose: a required check must always report. Reusable so the
+# release workflow runs the very same jobs before it releases.
 on:
   pull_request:
-  push:
-    branches: [main]
+  workflow_call:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -21,3 +23,4 @@ jobs:
         with:
           working_directory: template
       - run: ./scripts/test-template.sh
+      - run: node --test "tests/*.test.mjs"
