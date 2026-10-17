@@ -7,12 +7,4 @@ terraform {
       version = "~> 5.27.0"
     }
   }
-
-  cloud {
-    organization = "{{ hcp_org }}"
-
-    workspaces {
-      name = "cloudflare"
-    }
-  }
 }

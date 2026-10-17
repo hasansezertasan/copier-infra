@@ -5,7 +5,8 @@ keeps state, credentials, plans, and failure domains separate.
 
 Each root contains:
 
-- `versions.tf` for the exact Terraform version, provider constraint, and HCP binding;
+- `versions.tf` for the exact Terraform version and provider constraint;
+- `backend.tf` for the HCP organization and workspace binding;
 - `providers.tf` for authentication wiring;
 - `variables.tf` for HCP-supplied inputs;
 - `main.tf` for the smallest useful baseline;
