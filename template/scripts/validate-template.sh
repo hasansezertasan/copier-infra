@@ -8,8 +8,8 @@ required_files=(
   .infra-copilot/config.md
   .copier-answers.yml
   .infra-copilot/decisions.md
-  mise.toml
-  mise.lock
+  .config/mise.toml
+  .config/mise.lock
   terraform/cloudflare/versions.tf
   terraform/cloudflare/providers.tf
   terraform/cloudflare/variables.tf
@@ -59,9 +59,9 @@ if [[ -z "$hcp_org" ]]; then
   exit 1
 fi
 
-terraform_pin=$(sed -n 's/^terraform = "\([^"]*\)"$/\1/p' mise.toml)
+terraform_pin=$(sed -n 's/^terraform = "\([^"]*\)"$/\1/p' .config/mise.toml)
 if [[ -z "$terraform_pin" ]]; then
-  printf 'mise.toml must contain an exact Terraform pin\n' >&2
+  printf '.config/mise.toml must contain an exact Terraform pin\n' >&2
   exit 1
 fi
 
@@ -87,8 +87,8 @@ if ! grep -Fq 'name = "github-org"' terraform/github/versions.tf; then
 fi
 
 for tool in gh jq; do
-  if ! grep -Eq "^$tool = \"[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.+-]+)?\"$" mise.toml; then
-    printf 'mise.toml must contain an exact %s pin\n' "$tool" >&2
+  if ! grep -Eq "^$tool = \"[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.+-]+)?\"$" .config/mise.toml; then
+    printf '.config/mise.toml must contain an exact %s pin\n' "$tool" >&2
     exit 1
   fi
 done

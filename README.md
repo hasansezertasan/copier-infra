@@ -32,7 +32,7 @@ Never answer with credentials; only public identifiers belong in the answers.
 
 ```sh
 pipx install copier==9.18.2   # or: mise use -g copier
-mise trust template/mise.toml
-mise -C template install terraform   # the Terraform version pinned in template/mise.toml
+mise trust template/.config/mise.toml
+mise -C template install terraform   # the Terraform version pinned in template/.config/mise.toml
 mise -C template exec -- "$PWD/scripts/test-template.sh"
 ```
