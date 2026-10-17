@@ -30,10 +30,10 @@ infra-copilot after setup. If a resource already exists, import it before applyi
 
 ## Development
 
-Review `.config/mise.toml` before trusting it, then install the committed toolchain:
+Review `mise.toml` before trusting it, then install the committed toolchain:
 
 ```sh
-mise trust .config/mise.toml
+mise trust mise.toml
 MISE_LOCKED=1 mise install terraform gh jq
 mise exec -- make check
 ```
