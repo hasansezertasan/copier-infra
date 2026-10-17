@@ -9,7 +9,7 @@ maintained with [infra-copilot](https://github.com/hasansezertasan/infra-copilot
 1. Install infra-copilot using its current installation instructions.
 2. Ask your agent to use infra-copilot to finish setup ({% if backend == 'hcp' %}HCP workspaces, credentials as
    sensitive workspace variables, VCS-driven plans{% else %}the state bucket, plan and apply workflows, GitHub Apps and the `production` environment{% endif %}).
-3. Pull template changes later with `copier update`.
+3. Pull template changes later with `uvx copier update`.
 
 Do not commit credentials. Public deployment identifiers live in
 `.infra-copilot/config.md`, rendered from `.copier-answers.yml`; API tokens and GitHub App
