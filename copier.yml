@@ -2,7 +2,7 @@ _subdirectory: template
 _min_copier_version: "9.4.0"
 _message_after_copy: |
   Rendered into {{ _copier_conf.dst_path }}.
-  Next: commit, then use infra-copilot (/infra-setup) to finish state, CI and credential setup.
+  Next: commit, then ask your agent to use infra-copilot's setup skill to finish state, CI and credential setup.
 
 backend:
   type: str

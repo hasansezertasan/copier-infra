@@ -44,7 +44,8 @@ Copier asks for the backend first:
 | `object-storage` (default, recommended) | `gcs`, `s3` or `azurerm` bucket | GitHub Actions | state bucket and prefix, plus lock table, region or Azure fields where they apply |
 | `hcp` | HCP Terraform workspaces | HCP VCS integration | HCP organization and status check ID; needs a paid tier with team management |
 
-Then run infra-copilot's setup (`/infra-setup`) in the new repository. Never answer with
+Then ask your agent to use infra-copilot's setup skill in the new repository (hosts that expose
+plugin commands, such as Claude Code, also offer `/infra-setup`). Never answer with
 credentials; only public identifiers belong in the answers.
 
 ### Update a repository
