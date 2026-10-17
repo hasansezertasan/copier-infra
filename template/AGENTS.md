@@ -26,7 +26,7 @@ This repository is the consuming infrastructure repository for `infra-copilot`.
 ## Terraform conventions
 
 - Each `terraform/*` directory is an independent root with its own lock file and state.
-- Pin Terraform in `mise.toml`, require that exact version in each root, and configure
+- Pin Terraform in `.config/mise.toml`, require that exact version in each root, and configure
   every HCP workspace to use the same version.
 - Commit `.terraform.lock.hcl` files. Upgrade providers deliberately.
 - Prefer clear resource-category files over a growing `main.tf`.

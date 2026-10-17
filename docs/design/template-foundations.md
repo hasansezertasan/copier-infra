@@ -98,8 +98,8 @@ in the relevant HCP workspace.
 
 ### Toolchain and provider selection
 
-The repository pins Terraform, GitHub CLI, and jq to exact versions in `mise.toml` and
-commits a cross-platform `mise.lock`. Each Terraform root requires the same exact
+The repository pins Terraform, GitHub CLI, and jq to exact versions in `.config/mise.toml` and
+commits a cross-platform `.config/mise.lock`. Each Terraform root requires the same exact
 Terraform version, and HCP workspaces must be configured to match it.
 
 Provider constraints permit compatible patch upgrades within the selected minor line,
