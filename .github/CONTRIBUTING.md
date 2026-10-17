@@ -18,7 +18,7 @@ node --test "tests/*.test.mjs"
 
 ## Release flow
 
-`version.txt` and `.release-please-manifest.json` carry the version; release-please bumps both. The first release is 0.1.0.
+`version.txt` and `.github/.release-please-manifest.json` carry the version; release-please bumps both. The first release is 0.1.0.
 
 1. On `main`, the `release` workflow runs the same `CI` workflow as pull requests, then `scripts/release-merge.mjs`, which allows a release only for the one pending release PR merged as the commit being released.
 2. release-please opens or updates a release PR with the version bump and changelog.
