@@ -1,7 +1,7 @@
 locals {
   config_path          = "${path.root}/../../.infra-copilot/config.md"
   config_document      = file(local.config_path)
-  infra_copilot_config = yamldecode(regex("(?s)\\A---\\n(.*?)\\n---\\n", local.config_document)[0])
+  infra_copilot_config = yamldecode(regex("(?s)\\A---\\r?\\n(.*?)\\r?\\n---\\r?\\n", local.config_document)[0])
   managed_repositories = toset([
     for repository in local.infra_copilot_config.managed_repos : basename(repository)
   ])
