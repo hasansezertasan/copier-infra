@@ -6,28 +6,50 @@ This repository is the consuming infrastructure repository for `infra-copilot`.
 
 - Use infra-copilot for setup, import, provider/resource additions, and status checks.
 - Read `.infra-copilot/config.md` before acting. It is rendered by copier from
-  `.copier-answers.yml`, which also writes the literal HCP organization into both
-  Terraform `cloud` blocks. Change those values with `copier update` or `copier recopy`,
+  `.copier-answers.yml`, which also writes the state backend into both Terraform
+  roots' `backend.tf`. Change those values with `copier update` or `copier recopy`,
   never by hand, and commit the answers file, config, and Terraform roots together.
 - Record durable architecture, authentication, state, and safety choices in
   `.infra-copilot/decisions.md`.
+{% if backend == 'hcp' -%}
 - Keep Cloudflare and GitHub in separate Terraform roots and HCP workspaces.
+{%- else -%}
+- Keep Cloudflare and GitHub in separate Terraform roots with separate state prefixes.
+{%- endif %}
 - Run `mise exec -- make check` before proposing a change.
 
 ## Safety
 
 - Never read, print, request, or commit plaintext credentials.
+{% if backend == 'hcp' -%}
 - Keep secrets in sensitive HCP Terraform workspace variables.
+{%- else -%}
+- Keep read-only credentials in GitHub Actions repository secrets and apply credentials
+  only in the `main`-only `production` environment; never put apply credentials in
+  repository or organization secrets.
+{%- endif %}
 - Never apply when a plan proposes creating a resource that already exists; import it.
+{% if backend == 'hcp' -%}
 - Never automate applies. A human confirms the reviewed plan in HCP Terraform.
 - Treat forked pull-request Terraform as untrusted code. GitHub Actions must remain
   credential-free; HCP plans for forks require explicit maintainer approval.
+{%- else -%}
+- Never apply without review. Applies run only from `main` in the `production`
+  environment, with required reviewers where GitHub offers them.
+- Treat forked pull-request Terraform as untrusted code. Fork pull requests must not
+  receive credentials; plan output appears in PR comments, so mark sensitive outputs
+  `sensitive = true`.
+{%- endif %}
 
 ## Terraform conventions
 
 - Each `terraform/*` directory is an independent root with its own lock file and state.
 - Pin Terraform in `mise.toml`, require that exact version in each root, and configure
+{%- if backend == 'hcp' %}
   every HCP workspace to use the same version.
+{%- else %}
+  every CI job to use the same version.
+{%- endif %}
 - Commit `.terraform.lock.hcl` files. Upgrade providers deliberately.
 - Prefer clear resource-category files over a growing `main.tf`.
 - Extract a module only after repeated use reveals a stable abstraction.

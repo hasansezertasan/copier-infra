@@ -38,16 +38,20 @@ if grep -Fq 'replace-with-' "$config_path"; then
   exit 1
 fi
 
-config_keys=(
-  backend
-  hcp_org
-  github_org
-  apex_domain
-  cloudflare_account_id
-  cloudflare_zone_id
-  managed_repos
-  hcp_status_check_id
-)
+config_value() {
+  sed -nE "s/^$1:[[:space:]]*\"?([^\"[:space:]]+)\"?[[:space:]]*\$/\\1/p" "$config_path"
+}
+
+backend=$(config_value backend)
+case "$backend" in
+  hcp) config_keys=(hcp_org hcp_status_check_id) ;;
+  object-storage) config_keys=(state_backend state_bucket state_prefix) ;;
+  *)
+    printf '%s must declare backend: hcp or backend: object-storage\n' "$config_path" >&2
+    exit 1
+    ;;
+esac
+config_keys+=(backend github_org apex_domain cloudflare_account_id cloudflare_zone_id managed_repos)
 
 for key in "${config_keys[@]}"; do
   if ! grep -Eq "^${key}:" "$config_path"; then
@@ -55,17 +59,6 @@ for key in "${config_keys[@]}"; do
     exit 1
   fi
 done
-
-if ! grep -Eq '^backend:[[:space:]]*hcp[[:space:]]*$' "$config_path"; then
-  printf '%s must declare backend: hcp\n' "$config_path" >&2
-  exit 1
-fi
-
-hcp_org=$(sed -nE 's/^hcp_org:[[:space:]]*"?([^"[:space:]]+)"?[[:space:]]*$/\1/p' "$config_path")
-if [[ -z "$hcp_org" ]]; then
-  printf '%s must contain one non-empty hcp_org\n' "$config_path" >&2
-  exit 1
-fi
 
 terraform_pin=$(sed -n 's/^terraform = "\([^"]*\)"$/\1/p' mise.toml)
 if [[ -z "$terraform_pin" ]]; then
@@ -78,20 +71,51 @@ for directory in terraform/cloudflare terraform/github; do
     printf '%s/versions.tf must require Terraform %s exactly\n' "$directory" "$terraform_pin" >&2
     exit 1
   fi
-  if ! grep -Fq "organization = \"$hcp_org\"" "$directory/backend.tf"; then
-    printf '%s/backend.tf must use hcp_org from %s\n' "$directory" "$config_path" >&2
-    exit 1
-  fi
 done
 
-if ! grep -Fq 'name = "cloudflare"' terraform/cloudflare/backend.tf; then
-  printf 'Cloudflare root must bind to the cloudflare workspace\n' >&2
-  exit 1
-fi
-
-if ! grep -Fq 'name = "github-org"' terraform/github/backend.tf; then
-  printf 'GitHub root must bind to the github-org workspace\n' >&2
-  exit 1
+if [[ "$backend" == hcp ]]; then
+  hcp_org=$(config_value hcp_org)
+  if [[ -z "$hcp_org" ]]; then
+    printf '%s must contain one non-empty hcp_org\n' "$config_path" >&2
+    exit 1
+  fi
+  for directory in terraform/cloudflare terraform/github; do
+    if ! grep -Fq "organization = \"$hcp_org\"" "$directory/backend.tf"; then
+      printf '%s/backend.tf must use hcp_org from %s\n' "$directory" "$config_path" >&2
+      exit 1
+    fi
+  done
+  if ! grep -Fq 'name = "cloudflare"' terraform/cloudflare/backend.tf; then
+    printf 'Cloudflare root must bind to the cloudflare workspace\n' >&2
+    exit 1
+  fi
+  if ! grep -Fq 'name = "github-org"' terraform/github/backend.tf; then
+    printf 'GitHub root must bind to the github-org workspace\n' >&2
+    exit 1
+  fi
+else
+  state_backend=$(config_value state_backend)
+  state_bucket=$(config_value state_bucket)
+  state_prefix=$(config_value state_prefix)
+  for leaf in cloudflare github; do
+    file="terraform/$leaf/backend.tf"
+    if ! grep -Fq "backend \"$state_backend\"" "$file"; then
+      printf '%s must configure the %s backend\n' "$file" "$state_backend" >&2
+      exit 1
+    fi
+    if grep -Eq '^[[:space:]]*cloud[[:space:]]*\{' "$file"; then
+      printf '%s must not mix a cloud block with an object-storage backend\n' "$file" >&2
+      exit 1
+    fi
+    if ! grep -Fq "\"$state_bucket\"" "$file"; then
+      printf '%s must use state_bucket from %s\n' "$file" "$config_path" >&2
+      exit 1
+    fi
+    if ! grep -Fq "\"$state_prefix/$leaf" "$file"; then
+      printf '%s must isolate state under %s/%s\n' "$file" "$state_prefix" "$leaf" >&2
+      exit 1
+    fi
+  done
 fi
 
 for tool in gh jq; do

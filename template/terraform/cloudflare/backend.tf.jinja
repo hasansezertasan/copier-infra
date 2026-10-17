@@ -1,3 +1,4 @@
+{% if backend == 'hcp' -%}
 terraform {
   cloud {
     organization = "{{ hcp_org }}"
@@ -7,3 +8,30 @@ terraform {
     }
   }
 }
+{%- elif state_backend == 'gcs' -%}
+terraform {
+  backend "gcs" {
+    bucket = "{{ state_bucket }}"
+    prefix = "{{ state_prefix }}/cloudflare"
+  }
+}
+{%- elif state_backend == 's3' -%}
+terraform {
+  backend "s3" {
+    bucket         = "{{ state_bucket }}"
+    key            = "{{ state_prefix }}/cloudflare/terraform.tfstate"
+    region         = "{{ state_region }}"
+    dynamodb_table = "{{ state_lock_table }}"
+  }
+}
+{%- else -%}
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "{{ azure_resource_group }}"
+    storage_account_name = "{{ azure_storage_account }}"
+    container_name       = "{{ state_bucket }}"
+    key                  = "{{ state_prefix }}/cloudflare/terraform.tfstate"
+    use_azuread_auth     = true
+  }
+}
+{%- endif %}

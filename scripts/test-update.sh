@@ -21,7 +21,9 @@ git_in "$src" commit -q -m "feat: initial"
 git_in "$src" tag v1.0.0
 
 copier copy --trust --defaults \
-  --data hcp_org=example-org \
+  --data backend=object-storage \
+  --data state_backend=gcs \
+  --data state_bucket=example-state \
   --data github_org=example-org \
   --data apex_domain=example.com \
   --data cloudflare_account_id=0123456789abcdef0123456789abcdef \
@@ -47,7 +49,7 @@ fail() { printf 'update test failed: %s\n' "$1" >&2; exit 1; }
 grep -Fq 'Added in v1.0.1.' "$dst/terraform/README.md" || fail "template change not applied"
 grep -Fq 'Local choice' "$dst/.infra-copilot/decisions.md" || fail "local edit lost"
 grep -Fq '_commit: v1.0.1' "$dst/.copier-answers.yml" || fail "answers file not advanced to v1.0.1"
-grep -Fq 'hcp_org: example-org' "$dst/.copier-answers.yml" || fail "answers lost"
+grep -Fq 'state_bucket: example-state' "$dst/.copier-answers.yml" || fail "answers lost"
 if grep -rq '^<<<<<<<' "$dst" --exclude-dir=.git; then fail "merge conflict markers"; fi
 
 git_in "$dst" add -A

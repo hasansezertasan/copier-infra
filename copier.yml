@@ -2,24 +2,106 @@ _subdirectory: template
 _min_copier_version: "9.4.0"
 _message_after_copy: |
   Rendered into {{ _copier_conf.dst_path }}.
-  Next: commit, then use infra-copilot to finish HCP workspace and credential setup.
+  Next: commit, then ask your agent to use infra-copilot's setup skill to finish state, CI and credential setup.
+
+backend:
+  type: str
+  help: Where Terraform state and CI run (infra-copilot recommends object-storage)
+  choices:
+    "Object storage state + GitHub Actions (recommended)": object-storage
+    "HCP Terraform (needs a paid tier with team management)": hcp
+  default: object-storage
+
+github_org:
+  type: str
+  help: GitHub organization that owns the managed repositories
+  validator: >-
+    {% if not (github_org | regex_search('^[A-Za-z0-9][A-Za-z0-9-]*$')) %}
+    Not a valid GitHub organization name.
+    {% endif %}
 
 hcp_org:
   type: str
   help: HCP Terraform organization slug
+  when: "{{ backend == 'hcp' }}"
+  default: "{{ github_org }}"
   validator: >-
     {% if not (hcp_org | regex_search('^[A-Za-z0-9][A-Za-z0-9_-]*$')) %}
     Use letters, digits, hyphens and underscores only.
     {% endif %}
 
-github_org:
+hcp_status_check_id:
   type: str
-  help: GitHub organization that owns the managed repositories
-  default: "{{ hcp_org }}"
+  help: HCP Terraform GitHub status check ID (leave empty until known)
+  when: "{{ backend == 'hcp' }}"
+  default: ""
+
+state_backend:
+  type: str
+  help: Terraform state backend type
+  when: "{{ backend == 'object-storage' }}"
+  choices:
+    - gcs
+    - s3
+    - azurerm
+  default: gcs
+
+state_bucket:
+  type: str
+  help: State bucket name (container name for azurerm)
+  when: "{{ backend == 'object-storage' }}"
   validator: >-
-    {% if not (github_org | regex_search('^[A-Za-z0-9][A-Za-z0-9-]*$')) %}
-    Not a valid GitHub organization name.
+    {% if state_backend == 'gcs' %}
+    {%- if not (state_bucket | regex_search('^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$')) %}
+    GCS buckets are 3-63 characters of lowercase letters, digits, dots, hyphens and underscores, starting and ending with a letter or digit.
+    {%- endif %}
+    {%- elif state_backend == 's3' %}
+    {%- if not (state_bucket | regex_search('^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$')) or '..' in state_bucket %}
+    S3 buckets are 3-63 characters of lowercase letters, digits, dots and hyphens, starting and ending with a letter or digit, with no consecutive dots.
+    {%- endif %}
+    {%- else %}
+    {%- if not (state_bucket | regex_search('^[a-z0-9]([a-z0-9]|-(?=[a-z0-9])){2,62}$')) %}
+    Azure containers are 3-63 lowercase letters, digits and single hyphens, starting with a letter or digit and not ending in a hyphen.
+    {%- endif %}
+    {%- endif %}
+
+state_prefix:
+  type: str
+  help: Path prefix inside the bucket; each root adds its own directory name
+  when: "{{ backend == 'object-storage' }}"
+  default: terraform/state
+  validator: >-
+    {% if not (state_prefix | regex_search('^[A-Za-z0-9][A-Za-z0-9._/-]*[A-Za-z0-9]$')) or '//' in state_prefix %}
+    Use a relative path without leading or trailing slashes.
     {% endif %}
+
+state_lock_table:
+  type: str
+  help: DynamoDB table used for S3 state locking
+  when: "{{ backend == 'object-storage' and state_backend == 's3' }}"
+  validator: >-
+    {% if not state_lock_table %}Required for the s3 backend.{% endif %}
+
+state_region:
+  type: str
+  help: Region (S3) or Azure location
+  when: "{{ backend == 'object-storage' and state_backend in ['s3', 'azurerm'] }}"
+  validator: >-
+    {% if not state_region %}Required for this backend.{% endif %}
+
+azure_storage_account:
+  type: str
+  help: Azure storage account that holds the state container
+  when: "{{ backend == 'object-storage' and state_backend == 'azurerm' }}"
+  validator: >-
+    {% if not (azure_storage_account | regex_search('^[a-z0-9]{3,24}$')) %}3-24 lowercase letters and digits.{% endif %}
+
+azure_resource_group:
+  type: str
+  help: Azure resource group of the storage account
+  when: "{{ backend == 'object-storage' and state_backend == 'azurerm' }}"
+  validator: >-
+    {% if not azure_resource_group %}Required for the azurerm backend.{% endif %}
 
 apex_domain:
   type: str
@@ -54,8 +136,3 @@ managed_repos:
     Every entry must be {{ github_org }}/<repo>: {{ repo }}.
     {%- endif %}
     {%- endfor %}
-
-hcp_status_check_id:
-  type: str
-  help: HCP Terraform GitHub status check ID (leave empty until known)
-  default: ""

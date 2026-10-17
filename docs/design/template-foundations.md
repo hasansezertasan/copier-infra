@@ -52,6 +52,11 @@ sites justify it.
 
 ## Selected baseline
 
+The sections below describe the HCP Terraform route. With `backend: object-storage` the
+roots are identical except for `backend.tf`, state lives under one prefix per root, and
+infra-copilot adds GitHub Actions plan and apply workflows that run applies from `main` in
+a `production` environment instead of HCP's confirmation gate.
+
 ### State and directory boundaries
 
 The repository starts with two independent roots:
@@ -85,8 +90,9 @@ normalized before commit.
 
 `.infra-copilot/config.md` is the canonical home for public deployment identifiers. It is
 not hand-written: `copier.yml` asks for the identifiers, validates their shape, and renders
-the config, `.copier-answers.yml`, and the literal HCP organization that Terraform's
-`cloud` block requires in both roots. Because placeholders never reach a rendered
+the config, `.copier-answers.yml`, and each root's `backend.tf`: the literal HCP
+organization Terraform's `cloud` block requires, or a `gcs`, `s3` or `azurerm` block with a
+per-root state prefix. See `docs/adr/0001-offer-object-storage-and-hcp-backends.md`. Because placeholders never reach a rendered
 repository, the contract validator can reject any remaining `replace-with-` value.
 
 Changing an identifier means re-running `copier update` or `copier recopy`, so the config

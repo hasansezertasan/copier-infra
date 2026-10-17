@@ -1,6 +1,8 @@
 ---
-backend: hcp
+backend: {{ backend }}
+{%- if backend == 'hcp' %}
 hcp_org: {{ hcp_org | tojson }}
+{%- endif %}
 github_org: {{ github_org | tojson }}
 apex_domain: {{ apex_domain | tojson }}
 cloudflare_account_id: {{ cloudflare_account_id | tojson }}
@@ -9,12 +11,28 @@ managed_repos:
 {%- for repo in managed_repos %}
   - {{ repo | tojson }}
 {%- endfor %}
+{%- if backend == 'hcp' %}
 hcp_status_check_id: {{ hcp_status_check_id | tojson }}
+{%- else %}
+state_backend: {{ state_backend }}
+state_bucket: {{ state_bucket | tojson }}
+state_prefix: {{ state_prefix | tojson }}
+{%- if state_backend == 's3' %}
+state_lock_table: {{ state_lock_table | tojson }}
+{%- endif %}
+{%- if state_backend in ['s3', 'azurerm'] %}
+state_region: {{ state_region | tojson }}
+{%- endif %}
+{%- if state_backend == 'azurerm' %}
+azure_storage_account: {{ azure_storage_account | tojson }}
+azure_resource_group: {{ azure_resource_group | tojson }}
+{%- endif %}
+{%- endif %}
 ---
 
 # infra-copilot configuration
 
 Rendered by copier from the answers in `.copier-answers.yml`. These are public
 deployment identifiers. Never put credentials or secrets here. Change a value by
-running `copier update` or `copier recopy`, not by hand-editing, so the Terraform `cloud`
-blocks stay aligned.
+running `copier update` or `copier recopy`, not by hand-editing, so the Terraform
+backend blocks stay aligned.
