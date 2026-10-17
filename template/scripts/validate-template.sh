@@ -11,11 +11,13 @@ required_files=(
   .config/mise.toml
   .config/mise.lock
   terraform/cloudflare/versions.tf
+  terraform/cloudflare/backend.tf
   terraform/cloudflare/providers.tf
   terraform/cloudflare/variables.tf
   terraform/cloudflare/main.tf
   terraform/cloudflare/.terraform.lock.hcl
   terraform/github/versions.tf
+  terraform/github/backend.tf
   terraform/github/providers.tf
   terraform/github/variables.tf
   terraform/github/main.tf
@@ -65,23 +67,23 @@ if [[ -z "$terraform_pin" ]]; then
   exit 1
 fi
 
-for path in terraform/cloudflare/versions.tf terraform/github/versions.tf; do
-  if ! grep -Fq "required_version = \"= $terraform_pin\"" "$path"; then
-    printf '%s must require Terraform %s exactly\n' "$path" "$terraform_pin" >&2
+for directory in terraform/cloudflare terraform/github; do
+  if ! grep -Fq "required_version = \"= $terraform_pin\"" "$directory/versions.tf"; then
+    printf '%s/versions.tf must require Terraform %s exactly\n' "$directory" "$terraform_pin" >&2
     exit 1
   fi
-  if ! grep -Fq "organization = \"$hcp_org\"" "$path"; then
-    printf '%s must use hcp_org from %s\n' "$path" "$config_path" >&2
+  if ! grep -Fq "organization = \"$hcp_org\"" "$directory/backend.tf"; then
+    printf '%s/backend.tf must use hcp_org from %s\n' "$directory" "$config_path" >&2
     exit 1
   fi
 done
 
-if ! grep -Fq 'name = "cloudflare"' terraform/cloudflare/versions.tf; then
+if ! grep -Fq 'name = "cloudflare"' terraform/cloudflare/backend.tf; then
   printf 'Cloudflare root must bind to the cloudflare workspace\n' >&2
   exit 1
 fi
 
-if ! grep -Fq 'name = "github-org"' terraform/github/versions.tf; then
+if ! grep -Fq 'name = "github-org"' terraform/github/backend.tf; then
   printf 'GitHub root must bind to the github-org workspace\n' >&2
   exit 1
 fi

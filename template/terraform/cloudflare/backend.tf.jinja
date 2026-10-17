@@ -1,0 +1,9 @@
+terraform {
+  cloud {
+    organization = "{{ hcp_org }}"
+
+    workspaces {
+      name = "cloudflare"
+    }
+  }
+}

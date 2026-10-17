@@ -7,12 +7,4 @@ terraform {
       version = "~> 6.13.0"
     }
   }
-
-  cloud {
-    organization = "{{ hcp_org }}"
-
-    workspaces {
-      name = "github-org"
-    }
-  }
 }
