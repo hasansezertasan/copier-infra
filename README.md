@@ -15,7 +15,8 @@ https://github.com/hasansezertasan/infra-copilot/blob/main/docs/installation.md
 
 Then render a new infrastructure repository from
 https://github.com/hasansezertasan/copier-infra with copier, in a directory named
-infra, and use infra-copilot's setup skill to finish it. Ask me for what you need
+infra. Initialize Git in it and commit the render, then work inside that directory and use
+infra-copilot's setup skill to finish it. Ask me for what you need
 (my GitHub owner, the Cloudflare domain and IDs, and the state backend), never ask
 for or read credentials, and ask before you create a repository, change settings or
 secrets, or push.
@@ -34,8 +35,13 @@ workflows, GitHub Apps, the `production` environment) belong to infra-copilot's 
 ```sh
 uvx copier copy gh:hasansezertasan/copier-infra infra
 cd infra
-git init && git remote add origin https://github.com/<owner>/infra
+git init && git add -A && git commit -m "chore: scaffold infrastructure repository"
+git remote add origin https://github.com/<owner>/infra
 ```
+
+Copier does not initialize Git, and infra-copilot's setup checks and `copier update` both read
+tracked files and `HEAD`, so commit the render before anything else. Run the agent inside
+`infra`.
 
 Copier asks for the backend first:
 
