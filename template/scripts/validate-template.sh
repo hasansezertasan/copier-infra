@@ -5,11 +5,11 @@ root=$(git rev-parse --show-toplevel)
 cd "$root"
 
 required_files=(
-  .infra-copilot/config.md.example
+  .infra-copilot/config.md
+  .copier-answers.yml
   .infra-copilot/decisions.md
   mise.toml
   mise.lock
-  scripts/sync-config.sh
   terraform/cloudflare/versions.tf
   terraform/cloudflare/providers.tf
   terraform/cloudflare/variables.tf
@@ -29,13 +29,11 @@ for path in "${required_files[@]}"; do
   fi
 done
 
-config_path=.infra-copilot/config.md.example
-if [[ -f .infra-copilot/config.md ]]; then
-  config_path=.infra-copilot/config.md
-  if grep -Fq 'replace-with-' "$config_path"; then
-    printf '%s contains unresolved template placeholders\n' "$config_path" >&2
-    exit 1
-  fi
+config_path=.infra-copilot/config.md
+
+if grep -Fq 'replace-with-' "$config_path"; then
+  printf '%s contains unresolved placeholders\n' "$config_path" >&2
+  exit 1
 fi
 
 config_keys=(
@@ -108,7 +106,7 @@ done
 
 identity_found=false
 while IFS= read -r -d '' path; do
-  [[ "$path" == .infra-copilot/config.md ]] && continue
+  [[ "$path" == .infra-copilot/config.md || "$path" == .copier-answers.yml ]] && continue
   if grep -Eq '(^|[^[:xdigit:]])[[:xdigit:]]{32}([^[:xdigit:]]|$)' -- "$path" 2>/dev/null; then
     identity_found=true
     break

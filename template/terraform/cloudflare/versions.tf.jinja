@@ -9,7 +9,7 @@ terraform {
   }
 
   cloud {
-    organization = "replace-with-hcp-org"
+    organization = "{{ hcp_org }}"
 
     workspaces {
       name = "cloudflare"

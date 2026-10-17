@@ -1,8 +1,7 @@
 locals {
   config_path          = "${path.root}/../../.infra-copilot/config.md"
-  config_example_path  = "${path.root}/../../.infra-copilot/config.md.example"
-  config_document      = file(fileexists(local.config_path) ? local.config_path : local.config_example_path)
-  infra_copilot_config = yamldecode(trimspace(split("---", local.config_document)[1]))
+  config_document      = file(local.config_path)
+  infra_copilot_config = yamldecode(regex("(?s)\\A---\\r?\\n(.*?)\\r?\\n---\\r?\\n", local.config_document)[0])
 }
 
 # This read-only lookup proves that the HCP workspace token can access the configured

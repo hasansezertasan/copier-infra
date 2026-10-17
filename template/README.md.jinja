@@ -1,0 +1,43 @@
+# Infrastructure
+
+Terraform-managed Cloudflare and GitHub infrastructure for `{{ github_org }}`, generated
+from [copier-infra](https://github.com/hasansezertasan/copier-infra) and designed to be
+maintained with [infra-copilot](https://github.com/hasansezertasan/infra-copilot).
+
+## Start here
+
+1. Install infra-copilot using its current installation instructions.
+2. Ask your agent to use infra-copilot to finish setup (HCP workspaces, credentials as
+   sensitive workspace variables, VCS-driven plans).
+3. Pull template changes later with `copier update`.
+
+Do not commit credentials. Public deployment identifiers live in
+`.infra-copilot/config.md`, rendered from `.copier-answers.yml`; API tokens and GitHub App
+credentials belong only in the corresponding HCP Terraform workspace.
+
+## Shape
+
+Each directory below is an independent Terraform root with its own state and provider
+lock file:
+
+| Directory | HCP workspace | Initial responsibility |
+|---|---|---|
+| `terraform/cloudflare` | `cloudflare` | Verify access to the configured Cloudflare zone |
+| `terraform/github` | `github-org` | Verify access to the configured GitHub repositories |
+
+The initial data sources are read-only credential probes. Add managed resources with
+infra-copilot after setup. If a resource already exists, import it before applying.
+
+## Development
+
+Review `mise.toml` before trusting it, then install the committed toolchain:
+
+```sh
+mise trust mise.toml
+MISE_LOCKED=1 mise install terraform gh jq
+mise exec -- make check
+```
+
+HCP Terraform creates plans through its VCS integration. GitHub Actions runs only
+credential-free formatting, validation, and contract checks. Applies require manual
+confirmation in HCP Terraform.

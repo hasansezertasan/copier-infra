@@ -6,7 +6,7 @@ Last reviewed: 2026-09-04
 
 ## Purpose
 
-This document records the architecture behind this GitHub template. It describes the
+This document records the architecture behind this Copier template. It describes the
 patterns selected for a fresh infrastructure repository, the alternatives deliberately
 left out, and the points where the repository may grow later.
 
@@ -83,15 +83,14 @@ normalized before commit.
 
 ### Configuration ownership
 
-`.infra-copilot/config.md` is the canonical home for public deployment identifiers. The
-template ships only `.infra-copilot/config.md.example`; an active config is created during
-setup so placeholder values cannot be mistaken for a real environment.
+`.infra-copilot/config.md` is the canonical home for public deployment identifiers. It is
+not hand-written: `copier.yml` asks for the identifiers, validates their shape, and renders
+the config, `.copier-answers.yml`, and the literal HCP organization that Terraform's
+`cloud` block requires in both roots. Because placeholders never reach a rendered
+repository, the contract validator can reject any remaining `replace-with-` value.
 
-Terraform's `cloud` block requires a literal organization name. After the active config
-is created or changed, a human reviews and runs `scripts/sync-config.sh`, which copies its
-`hcp_org` value into both roots. The config and synchronized roots are committed together.
-The template validator then ensures those literals and the canonical config remain in
-sync.
+Changing an identifier means re-running `copier update` or `copier recopy`, so the config
+and the Terraform literals cannot drift. The validator still checks that they agree.
 
 Durable decisions live in `.infra-copilot/decisions.md`. Credentials never belong in
 either document. API tokens and GitHub App credentials exist only as sensitive variables
@@ -126,7 +125,7 @@ the credentials that Terraform code could otherwise read or exfiltrate during pl
 
 ## Required safeguards
 
-Every repository created from this template must preserve these invariants:
+Every repository rendered from this template must preserve these invariants:
 
 1. No plaintext credentials, local state, plan files, private keys, or `.tfvars` files are
    committed.
