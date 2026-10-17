@@ -8,8 +8,8 @@ required_files=(
   .infra-copilot/config.md
   .copier-answers.yml
   .infra-copilot/decisions.md
-  .config/mise.toml
-  .config/mise.lock
+  mise.toml
+  mise.lock
   terraform/cloudflare/versions.tf
   terraform/cloudflare/backend.tf
   terraform/cloudflare/providers.tf
@@ -39,6 +39,7 @@ if grep -Fq 'replace-with-' "$config_path"; then
 fi
 
 config_keys=(
+  backend
   hcp_org
   github_org
   apex_domain
@@ -55,15 +56,20 @@ for key in "${config_keys[@]}"; do
   fi
 done
 
+if ! grep -Eq '^backend:[[:space:]]*hcp[[:space:]]*$' "$config_path"; then
+  printf '%s must declare backend: hcp\n' "$config_path" >&2
+  exit 1
+fi
+
 hcp_org=$(sed -nE 's/^hcp_org:[[:space:]]*"?([^"[:space:]]+)"?[[:space:]]*$/\1/p' "$config_path")
 if [[ -z "$hcp_org" ]]; then
   printf '%s must contain one non-empty hcp_org\n' "$config_path" >&2
   exit 1
 fi
 
-terraform_pin=$(sed -n 's/^terraform = "\([^"]*\)"$/\1/p' .config/mise.toml)
+terraform_pin=$(sed -n 's/^terraform = "\([^"]*\)"$/\1/p' mise.toml)
 if [[ -z "$terraform_pin" ]]; then
-  printf '.config/mise.toml must contain an exact Terraform pin\n' >&2
+  printf 'mise.toml must contain an exact Terraform pin\n' >&2
   exit 1
 fi
 
@@ -89,8 +95,8 @@ if ! grep -Fq 'name = "github-org"' terraform/github/backend.tf; then
 fi
 
 for tool in gh jq; do
-  if ! grep -Eq "^$tool = \"[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.+-]+)?\"$" .config/mise.toml; then
-    printf '.config/mise.toml must contain an exact %s pin\n' "$tool" >&2
+  if ! grep -Eq "^$tool = \"[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.+-]+)?\"$" mise.toml; then
+    printf 'mise.toml must contain an exact %s pin\n' "$tool" >&2
     exit 1
   fi
 done
