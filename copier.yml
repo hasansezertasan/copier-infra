@@ -1,0 +1,61 @@
+_subdirectory: template
+_min_copier_version: "9.4.0"
+_message_after_copy: |
+  Rendered into {{ _copier_conf.dst_path }}.
+  Next: commit, then use infra-copilot to finish HCP workspace and credential setup.
+
+hcp_org:
+  type: str
+  help: HCP Terraform organization slug
+  validator: >-
+    {% if not (hcp_org | regex_search('^[A-Za-z0-9][A-Za-z0-9_-]*$')) %}
+    Use letters, digits, hyphens and underscores only.
+    {% endif %}
+
+github_org:
+  type: str
+  help: GitHub organization that owns the managed repositories
+  default: "{{ hcp_org }}"
+  validator: >-
+    {% if not (github_org | regex_search('^[A-Za-z0-9][A-Za-z0-9-]*$')) %}
+    Not a valid GitHub organization name.
+    {% endif %}
+
+apex_domain:
+  type: str
+  help: Cloudflare zone apex domain, e.g. example.com
+
+cloudflare_account_id:
+  type: str
+  help: Cloudflare account ID (32 hex characters, public identifier)
+  validator: >-
+    {% if not (cloudflare_account_id | regex_search('^[0-9a-f]{32}$')) %}
+    Expected 32 lowercase hex characters.
+    {% endif %}
+
+cloudflare_zone_id:
+  type: str
+  help: Cloudflare zone ID (32 hex characters, public identifier)
+  validator: >-
+    {% if not (cloudflare_zone_id | regex_search('^[0-9a-f]{32}$')) %}
+    Expected 32 lowercase hex characters.
+    {% endif %}
+
+managed_repos:
+  type: yaml
+  multiline: true
+  help: GitHub repositories to manage, as a YAML list of org/repo
+  default: |
+    - {{ github_org }}/infra
+  validator: >-
+    {% if not managed_repos %}Provide at least one repository.{% endif %}
+    {%- for repo in managed_repos %}
+    {%- if not repo.startswith(github_org ~ '/') or repo.count('/') != 1 %}
+    Every entry must be {{ github_org }}/<repo>: {{ repo }}.
+    {%- endif %}
+    {%- endfor %}
+
+hcp_status_check_id:
+  type: str
+  help: HCP Terraform GitHub status check ID (leave empty until known)
+  default: ""

@@ -1,0 +1,19 @@
+---
+hcp_org: {{ hcp_org }}
+github_org: {{ github_org }}
+apex_domain: {{ apex_domain }}
+cloudflare_account_id: {{ cloudflare_account_id }}
+cloudflare_zone_id: {{ cloudflare_zone_id }}
+managed_repos:
+{%- for repo in managed_repos %}
+  - {{ repo }}
+{%- endfor %}
+hcp_status_check_id: "{{ hcp_status_check_id }}"
+---
+
+# infra-copilot configuration
+
+Rendered by copier from the answers in `.copier-answers.yml`. These are public
+deployment identifiers. Never put credentials or secrets here. Change a value by
+running `copier update` or `copier recopy`, not by hand-editing, so the Terraform `cloud`
+blocks stay aligned.

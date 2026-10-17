@@ -1,46 +1,34 @@
-# Infrastructure
+# copier-infra
 
-Terraform-managed Cloudflare and GitHub infrastructure, designed to be bootstrapped and
-maintained with [infra-copilot](https://github.com/hasansezertasan/infra-copilot).
+A [Copier](https://copier.readthedocs.io) template for Terraform-managed Cloudflare and
+GitHub infrastructure on HCP Terraform, designed to be bootstrapped and maintained with
+[infra-copilot](https://github.com/hasansezertasan/infra-copilot).
 
-## Start here
+## Usage
 
-1. Create a new repository from this GitHub template.
-2. Install infra-copilot using its current installation instructions.
-3. Ask your agent to use infra-copilot to set up the repository. It will stop for the
-   public identifiers needed to create `.infra-copilot/config.md`.
-4. After the config is filled, review `./scripts/sync-config.sh`, run it to bind both
-   Terraform roots to the configured HCP organization, and commit those changes together.
+```sh
+copier copy gh:hasansezertasan/copier-infra path/to/new-infra-repo
+```
 
-Do not commit credentials. Public deployment identifiers belong in
-`.infra-copilot/config.md`; API tokens and GitHub App credentials belong only in the
-corresponding HCP Terraform workspace. For a manual start, copy
-`.infra-copilot/config.md.example` to `.infra-copilot/config.md`, replace every
-`replace-with-*` value, and run the synchronization script.
+Copier asks for the public identifiers (HCP organization, GitHub organization, apex
+domain, Cloudflare account and zone IDs, managed repositories) and renders
+`.infra-copilot/config.md` plus the literal HCP organization in both Terraform `cloud`
+blocks. Pull later template changes with `copier update`.
 
-## Shape
+Never answer with credentials; only public identifiers belong in the answers.
 
-Each directory below is an independent Terraform root with its own state and provider
-lock file:
+## Layout
 
-| Directory | HCP workspace | Initial responsibility |
-|---|---|---|
-| `terraform/cloudflare` | `cloudflare` | Verify access to the configured Cloudflare zone |
-| `terraform/github` | `github-org` | Verify access to the configured GitHub repositories |
-
-The initial data sources are read-only credential probes. Add managed resources with
-infra-copilot after setup. If a resource already exists, import it before applying.
+| Path | Purpose |
+|---|---|
+| `copier.yml` | Questions and validation |
+| `template/` | The rendered project (`.jinja` files are templated) |
+| `scripts/test-template.sh` | Renders with fixed answers and runs the rendered contract checks |
+| `docs/design/` | Architecture notes behind the template |
 
 ## Development
 
-Review `mise.toml` before trusting it, then install the committed toolchain:
-
 ```sh
-mise trust mise.toml
-MISE_LOCKED=1 mise install terraform gh jq
-mise exec -- make check
+pipx install copier==9.18.2   # or: mise use -g copier
+./scripts/test-template.sh
 ```
-
-HCP Terraform creates plans through its VCS integration. GitHub Actions runs only
-credential-free formatting, validation, and template-contract checks. Applies require
-manual confirmation in HCP Terraform.

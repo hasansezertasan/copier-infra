@@ -5,13 +5,10 @@ This repository is the consuming infrastructure repository for `infra-copilot`.
 ## Workflow
 
 - Use infra-copilot for setup, import, provider/resource additions, and status checks.
-- Read `.infra-copilot/config.md` before acting. If it is absent, use infra-copilot's
-  config handoff and `.infra-copilot/config.md.example` to create it; never treat the
-  example placeholders as deployment values.
-- After creating or changing the config, review `./scripts/sync-config.sh` in full before
-  trusting it, then run it yourself. The script keeps the literal HCP organization in
-  both Terraform `cloud` blocks aligned with the canonical `hcp_org` value. Commit the
-  config and synchronized roots together before continuing setup.
+- Read `.infra-copilot/config.md` before acting. It is rendered by copier from
+  `.copier-answers.yml`, which also writes the literal HCP organization into both
+  Terraform `cloud` blocks. Change those values with `copier update` or `copier recopy`,
+  never by hand, and commit the answers file, config, and Terraform roots together.
 - Record durable architecture, authentication, state, and safety choices in
   `.infra-copilot/decisions.md`.
 - Keep Cloudflare and GitHub in separate Terraform roots and HCP workspaces.
