@@ -19,4 +19,8 @@ git init -q
 git add -A
 ./scripts/validate-template.sh
 terraform fmt -check -recursive terraform
+for directory in terraform/cloudflare terraform/github; do
+  terraform -chdir="$directory" init -backend=false -input=false -lockfile=readonly
+  terraform -chdir="$directory" validate
+done
 printf 'rendered template is valid\n'

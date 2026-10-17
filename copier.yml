@@ -50,7 +50,7 @@ managed_repos:
   validator: >-
     {% if not managed_repos %}Provide at least one repository.{% endif %}
     {%- for repo in managed_repos %}
-    {%- if not repo.startswith(github_org ~ '/') or repo.count('/') != 1 %}
+    {%- if not repo.startswith(github_org ~ '/') or repo.count('/') != 1 or repo.split('/')[1] | length == 0 %}
     Every entry must be {{ github_org }}/<repo>: {{ repo }}.
     {%- endif %}
     {%- endfor %}

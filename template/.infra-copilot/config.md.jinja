@@ -1,14 +1,14 @@
 ---
-hcp_org: {{ hcp_org }}
-github_org: {{ github_org }}
-apex_domain: {{ apex_domain }}
-cloudflare_account_id: {{ cloudflare_account_id }}
-cloudflare_zone_id: {{ cloudflare_zone_id }}
+hcp_org: {{ hcp_org | tojson }}
+github_org: {{ github_org | tojson }}
+apex_domain: {{ apex_domain | tojson }}
+cloudflare_account_id: {{ cloudflare_account_id | tojson }}
+cloudflare_zone_id: {{ cloudflare_zone_id | tojson }}
 managed_repos:
 {%- for repo in managed_repos %}
-  - {{ repo }}
+  - {{ repo | tojson }}
 {%- endfor %}
-hcp_status_check_id: "{{ hcp_status_check_id }}"
+hcp_status_check_id: {{ hcp_status_check_id | tojson }}
 ---
 
 # infra-copilot configuration
