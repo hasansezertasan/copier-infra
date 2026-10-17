@@ -8,7 +8,9 @@ This repository is the consuming infrastructure repository for `infra-copilot`.
 - Read `.infra-copilot/config.md` before acting. It is rendered by copier from
   `.copier-answers.yml`, which also writes the state backend into both Terraform
   roots' `backend.tf`. Change those values with `copier update` (review the diff),
-  never by hand, and never `copier recopy` over local edits, and commit the answers file, config, and Terraform roots together.
+  never by hand, and never `copier recopy` over local edits. Commit the answers file,
+  config, and Terraform roots together. Changing `backend`, `state_backend`,
+  `state_bucket` or `state_prefix` is a state migration; follow infra-copilot's runbook.
 - Record durable architecture, authentication, state, and safety choices in
   `.infra-copilot/decisions.md`.
 {% if backend == 'hcp' -%}
