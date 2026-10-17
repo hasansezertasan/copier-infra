@@ -37,6 +37,7 @@ if grep -Fq 'replace-with-' "$config_path"; then
 fi
 
 config_keys=(
+  backend
   hcp_org
   github_org
   apex_domain
@@ -52,6 +53,11 @@ for key in "${config_keys[@]}"; do
     exit 1
   fi
 done
+
+if ! grep -Eq '^backend:[[:space:]]*hcp[[:space:]]*$' "$config_path"; then
+  printf '%s must declare backend: hcp\n' "$config_path" >&2
+  exit 1
+fi
 
 hcp_org=$(sed -nE 's/^hcp_org:[[:space:]]*"?([^"[:space:]]+)"?[[:space:]]*$/\1/p' "$config_path")
 if [[ -z "$hcp_org" ]]; then
