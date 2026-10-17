@@ -14,6 +14,7 @@ mise trust template/mise.toml
 mise -C template install terraform
 mise -C template exec -- "$PWD/scripts/test-template.sh"
 node --test "tests/*.test.mjs"
+./scripts/test-update.sh
 ```
 
 ## Release flow

@@ -24,3 +24,4 @@ jobs:
           working_directory: template
       - run: ./scripts/test-template.sh
       - run: node --test "tests/*.test.mjs"
+      - run: ./scripts/test-update.sh
