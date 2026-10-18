@@ -41,6 +41,21 @@ for entry in "${cases[@]}"; do
   )
 done
 
+# An identifier outside the README's Config block must be caught.
+leak="$work/leak"
+copier copy --trust --defaults "${common[@]}" --data backend=hcp --data hcp_org=example-org \
+  "$root" "$leak" >/dev/null
+(
+  cd "$leak"
+  git init -q
+  printf '\nLeaked 0123456789abcdef0123456789abcdef here.\n' >> README.md
+  git add -A
+  if ./scripts/validate-template.sh >/dev/null 2>&1; then
+    printf 'validator missed an identifier outside the Config block\n' >&2
+    exit 1
+  fi
+)
+
 # The rejection paths must reject.
 rejects() {
   local label=$1

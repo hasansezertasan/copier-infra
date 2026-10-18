@@ -151,8 +151,14 @@ done
 
 identity_found=false
 while IFS= read -r -d '' path; do
-  [[ "$path" == README.md || "$path" == .copier-answers.yml ]] && continue
-  if grep -Eq '(^|[^[:xdigit:]])[[:xdigit:]]{32}([^[:xdigit:]]|$)' -- "$path" 2>/dev/null; then
+  [[ "$path" == .copier-answers.yml ]] && continue
+  # Only the README's Config block may hold identifiers; the rest of the README is scanned.
+  if [[ "$path" == README.md ]]; then
+    content=$(sed '/^<!-- infra:config start -->$/,/^<!-- infra:config end -->$/d' "$path")
+  else
+    content=$(cat -- "$path" 2>/dev/null || true)
+  fi
+  if grep -Eq '(^|[^[:xdigit:]])[[:xdigit:]]{32}([^[:xdigit:]]|$)' <<<"$content"; then
     identity_found=true
     break
   fi
