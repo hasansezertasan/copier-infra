@@ -6,9 +6,9 @@ holds the questions. Only `*.jinja` files are templated; everything else is copi
 verbatim, so keep the template owner-agnostic and free of deployment identifiers.
 
 The rendered repository is operated with
-[infra-copilot](https://github.com/hasansezertasan/infra-copilot), so it must satisfy
+[infra-skills](https://github.com/hasansezertasan/infra-skills), so it must satisfy
 that tool's contract: `.infra-copilot/config.md` with an explicit `backend:`, and
-`mise.toml` and `mise.lock` at the repository root. Check infra-copilot's references
+`mise.toml` and `mise.lock` at the repository root. Check infra-skills' references
 before moving or renaming anything it reads.
 
 Persist decisions as MADR records in `docs/adr/` with sequential four-digit prefixes,
