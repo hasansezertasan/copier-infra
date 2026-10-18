@@ -43,5 +43,10 @@ because the Skills' HCP documentation names those status-check contexts as requi
 - Existing repos rendered from an earlier commit have no sections; adopting this version
   with `copier update` adds them and deletes `.infra-copilot/`. State-location changes of
   this kind are called out in the README.
+- There is no tagged release before this change, so no migration code is shipped. A repo
+  rendered from an untagged commit moves by hand: copy its rows from
+  `.infra-copilot/decisions.md` into the README Decisions table, copy a configured
+  `hcp_status_check_id` into the Config block's customization region, then delete
+  `.infra-copilot/`. `copier update` alone resets both to their defaults.
 - The first release tag is cut by release-please from the squash-merged `feat!` title; it
   becomes the minimum Template version in infra-skills' Template contract.
