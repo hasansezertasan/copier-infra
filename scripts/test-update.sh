@@ -34,8 +34,13 @@ git_in "$dst" add -A
 git_in "$dst" commit -q -m "chore: initial render"
 
 # Consumer edit that the update must preserve.
-printf '| Local choice | kept | locked | Added by the consumer |\n' >> "$dst/.infra-copilot/decisions.md"
-git_in "$dst" commit -q -am "docs: record a local decision"
+awk '/^<!-- infra:decisions end -->$/ { print "| Local choice | kept | locked | Added by the consumer |"; print "" } { print }' \
+  "$dst/README.md" > "$dst/README.md.new"
+mv "$dst/README.md.new" "$dst/README.md"
+# Attestation written inside the customization markers, which the update must keep too.
+sed -i.bak 's/^  reviewed_at: ""$/  reviewed_at: "2026-01-01"/' "$dst/README.md"
+rm "$dst/README.md.bak"
+git_in "$dst" commit -q -am "docs: record a local decision and attestation"
 
 # Template change in v1.0.1.
 printf '\nAdded in v1.0.1.\n' >> "$src/template/terraform/README.md"
@@ -47,7 +52,8 @@ copier update --trust --defaults --vcs-ref=v1.0.1 "$dst" >/dev/null
 fail() { printf 'update test failed: %s\n' "$1" >&2; exit 1; }
 
 grep -Fq 'Added in v1.0.1.' "$dst/terraform/README.md" || fail "template change not applied"
-grep -Fq 'Local choice' "$dst/.infra-copilot/decisions.md" || fail "local edit lost"
+grep -Fq 'Local choice' "$dst/README.md" || fail "local edit lost"
+grep -Fq 'reviewed_at: "2026-01-01"' "$dst/README.md" || fail "attestation inside the customization markers lost"
 grep -Fq '_commit: v1.0.1' "$dst/.copier-answers.yml" || fail "answers file not advanced to v1.0.1"
 grep -Fq 'state_bucket: example-state' "$dst/.copier-answers.yml" || fail "answers lost"
 if grep -rq '^<<<<<<<' "$dst" --exclude-dir=.git; then fail "merge conflict markers"; fi

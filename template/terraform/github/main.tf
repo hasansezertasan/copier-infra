@@ -1,27 +1,27 @@
 locals {
-  config_path          = "${path.root}/../../.infra-copilot/config.md"
-  config_document      = file(local.config_path)
-  infra_copilot_config = yamldecode(regex("(?s)\\A---\\r?\\n(.*?)\\r?\\n---\\r?\\n", local.config_document)[0])
+  config_path     = "${path.root}/../../README.md"
+  config_document = file(local.config_path)
+  infra_config    = yamldecode(regex("(?s)<!-- infra:config start -->\\r?\\n```yaml\\r?\\n(.*?)\\r?\\n```\\r?\\n<!-- infra:config end -->", local.config_document)[0])
   managed_repositories = toset([
-    for repository in local.infra_copilot_config.managed_repos : basename(repository)
+    for repository in local.infra_config.managed_repos : basename(repository)
   ])
 }
 
 # This lookup always exists, so configuration invariants remain blocking even when
 # managed_repos is accidentally empty.
 data "github_organization" "configured" {
-  name         = local.infra_copilot_config.github_org
+  name         = local.infra_config.github_org
   summary_only = true
 
   lifecycle {
     precondition {
       condition = (
-        var.github_owner == local.infra_copilot_config.github_org &&
-        length(local.infra_copilot_config.managed_repos) > 0 &&
+        var.github_owner == local.infra_config.github_org &&
+        length(local.infra_config.managed_repos) > 0 &&
         alltrue([
-          for repository in local.infra_copilot_config.managed_repos :
+          for repository in local.infra_config.managed_repos :
           length(regexall("^[^/]+/[^/]+$", repository)) == 1 &&
-          startswith(repository, "${local.infra_copilot_config.github_org}/")
+          startswith(repository, "${local.infra_config.github_org}/")
         ])
       )
       error_message = "github_owner must match github_org, and managed_repos must contain at least one complete github_org/repository name."

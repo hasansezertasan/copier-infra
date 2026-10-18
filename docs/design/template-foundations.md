@@ -68,7 +68,7 @@ The repository starts with two independent roots:
 
 Each root owns its provider declaration, input variables, provider lockfile, plan, and
 state. HCP Terraform uses the matching directory as its VCS working directory and watches
-that directory plus the shared `.infra-copilot/config.md`. Remote execution and manual
+that directory plus the root `README.md`, which holds the shared Config block. Remote execution and manual
 apply confirmation are required.
 
 An additional provider receives a new root and workspace only when the deployment
@@ -88,8 +88,8 @@ normalized before commit.
 
 ### Configuration ownership
 
-`.infra-copilot/config.md` is the canonical home for public deployment identifiers. It is
-not hand-written: `copier.yml` asks for the identifiers, validates their shape, and renders
+The Config block in the root `README.md` is the canonical home for public deployment
+identifiers. It is not hand-written: `copier.yml` asks for the identifiers, validates their shape, and renders
 the config, `.copier-answers.yml`, and each root's `backend.tf`: the literal HCP
 organization Terraform's `cloud` block requires, or a `gcs`, `s3` or `azurerm` block with a
 per-root state prefix. See `docs/adr/0001-offer-object-storage-and-hcp-backends.md`. Because placeholders never reach a rendered
@@ -98,7 +98,8 @@ repository, the contract validator can reject any remaining `replace-with-` valu
 Changing an identifier means re-running `copier update`, so the config
 and the Terraform literals cannot drift. The validator still checks that they agree.
 
-Durable decisions live in `.infra-copilot/decisions.md`. Credentials never belong in
+Durable decisions live in the README's Decisions table. See
+`docs/adr/0003-render-config-and-decisions-as-readme-sections.md`. Credentials never belong in
 either document. API tokens and GitHub App credentials exist only as sensitive variables
 in the relevant HCP workspace.
 

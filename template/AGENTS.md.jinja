@@ -6,7 +6,7 @@ This repository is the consuming infrastructure repository for `infra-skills`.
 
 - Use infra-skills for setup, import, provider/resource additions, and status checks
   (`infra-setup`, `infra-import`, `infra-add`, `infra-status`).
-- Read `.infra-copilot/config.md` before acting. It is rendered by copier from
+- Read the Config block in `README.md` before acting. It is rendered by copier from
   `.copier-answers.yml`, which also writes the state backend into both Terraform
   roots' `backend.tf`. Change those values with `uvx copier update` (review the diff),
   never by hand, and never `uvx copier recopy` over local edits. Commit the answers file,
@@ -15,8 +15,9 @@ This repository is the consuming infrastructure repository for `infra-skills`.
   `state_prefix`, `azure_storage_account`) is a state migration; follow infra-skills'
   runbook. Routing and locking answers (`state_lock_table`, `state_region`,
   `azure_resource_group`) configure access to the same object and are not migrations.
-- Record durable architecture, authentication, state, and safety choices in
-  `.infra-copilot/decisions.md`.
+- Edit the Config block only between its `infra:customization` comments.
+- Record durable architecture, authentication, state, and safety choices in the
+  Decisions table in `README.md`.
 {% if backend == 'hcp' -%}
 - Keep Cloudflare and GitHub in separate Terraform roots and HCP workspaces.
 {%- else -%}

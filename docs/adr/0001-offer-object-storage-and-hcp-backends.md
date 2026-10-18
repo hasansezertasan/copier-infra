@@ -19,7 +19,8 @@ resources, because of its plan-only team token. A fresh HCP render also lacked t
 
 Chosen option: "Ask for the backend and render both routes", with `object-storage`
 as the default to match infra-skills' recommendation. `backend` is the first
-question. The HCP answers (`hcp_org`, `hcp_status_check_id`) and the bucket answers
+question. The HCP answer (`hcp_org`; `hcp_status_check_id` was a second answer until ADR 0003
+moved it to the Skills) and the bucket answers
 (`state_backend`, `state_bucket`, `state_prefix`, plus the lock table, region and
 Azure fields where they apply) are asked only for the chosen route. `config.md`
 follows infra-skills' schema, `backend.tf` renders the `cloud` block or a `gcs`,

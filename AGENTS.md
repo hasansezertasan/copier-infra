@@ -7,7 +7,8 @@ verbatim, so keep the template owner-agnostic and free of deployment identifiers
 
 The rendered repository is operated with
 [infra-skills](https://github.com/hasansezertasan/infra-skills), so it must satisfy
-that tool's contract: `.infra-copilot/config.md` with an explicit `backend:`, and
+that tool's contract: a root `README.md` with a Config block (explicit `backend:`) and a
+Decisions table, in the exact marker form `tests/test_template.py` asserts, and
 `mise.toml` and `mise.lock` at the repository root. Check infra-skills' references
 before moving or renaming anything it reads.
 
