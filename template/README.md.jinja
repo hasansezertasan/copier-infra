@@ -2,12 +2,12 @@
 
 Terraform-managed Cloudflare and GitHub infrastructure for `{{ github_org }}` ({% if backend == 'hcp' %}state and runs in HCP Terraform{% else %}state in {{ state_backend }} object storage, CI in GitHub Actions{% endif %}), generated
 from [copier-infra](https://github.com/hasansezertasan/copier-infra) and designed to be
-maintained with [infra-copilot](https://github.com/hasansezertasan/infra-copilot).
+maintained with [infra-skills](https://github.com/hasansezertasan/infra-skills).
 
 ## Start here
 
-1. Install infra-copilot using its current installation instructions.
-2. Ask your agent to use infra-copilot to finish setup ({% if backend == 'hcp' %}HCP workspaces, credentials as
+1. Install infra-skills using its current installation instructions.
+2. Ask your agent to use infra-skills to finish setup ({% if backend == 'hcp' %}HCP workspaces, credentials as
    sensitive workspace variables, VCS-driven plans{% else %}the state bucket, plan and apply workflows, GitHub Apps and the `production` environment{% endif %}).
 3. Pull template changes later with `uvx copier update`.
 
@@ -26,7 +26,7 @@ lock file:
 | `terraform/github` | `{% if backend == 'hcp' %}github-org{% else %}{{ state_prefix }}/github{% endif %}` | Verify access to the configured GitHub repositories |
 
 The initial data sources are read-only credential probes. Add managed resources with
-infra-copilot after setup. If a resource already exists, import it before applying.
+infra-skills after setup. If a resource already exists, import it before applying.
 
 ## Development
 
@@ -44,6 +44,6 @@ credential-free formatting, validation, and contract checks. Applies require man
 confirmation in HCP Terraform.
 {%- else -%}
 `ci.yml` runs credential-free formatting, validation, and contract checks. The plan and
-apply workflows are added by infra-copilot's setup; applies run from `main` in the
+apply workflows are added by infra-setup; applies run from `main` in the
 `production` environment.
 {%- endif %}

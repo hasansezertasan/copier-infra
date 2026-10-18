@@ -10,7 +10,7 @@ This document records the architecture behind this Copier template. It describes
 patterns selected for a fresh infrastructure repository, the alternatives deliberately
 left out, and the points where the repository may grow later.
 
-The template is primarily a deterministic starting point for `infra-copilot`. It must be
+The template is primarily a deterministic starting point for `infra-skills`. It must be
 safe to publish, contain no deployment identity or credentials, validate without remote
 access, and become operational only after a human supplies the public identifiers and
 credentials for a real environment.
@@ -54,7 +54,7 @@ sites justify it.
 
 The sections below describe the HCP Terraform route. With `backend: object-storage` the
 roots are identical except for `backend.tf`, state lives under one prefix per root, and
-infra-copilot adds GitHub Actions plan and apply workflows that run applies from `main` in
+infra-skills adds GitHub Actions plan and apply workflows that run applies from `main` in
 a `production` environment instead of HCP's confirmation gate.
 
 ### State and directory boundaries
@@ -171,5 +171,5 @@ The baseline intentionally excludes:
 - mutable action tags, tool ranges, and `latest` version selectors;
 - copied production resources or generated inventory.
 
-This boundary gives `infra-copilot` a predictable substrate while keeping each generated
+This boundary gives `infra-skills` a predictable substrate while keeping each generated
 repository honest about the infrastructure it actually owns.

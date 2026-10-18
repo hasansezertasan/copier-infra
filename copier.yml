@@ -2,11 +2,11 @@ _subdirectory: template
 _min_copier_version: "9.4.0"
 _message_after_copy: |
   Rendered into {{ _copier_conf.dst_path }}.
-  Next: commit, then ask your agent to use infra-copilot's setup skill to finish state, CI and credential setup.
+  Next: commit, then ask your agent to use the infra-setup skill to finish state, CI and credential setup.
 
 backend:
   type: str
-  help: Where Terraform state and CI run (infra-copilot recommends object-storage)
+  help: Where Terraform state and CI run (infra-skills recommends object-storage)
   choices:
     "Object storage state + GitHub Actions (recommended)": object-storage
     "HCP Terraform (needs a paid tier with team management)": hcp

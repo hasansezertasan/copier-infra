@@ -2,7 +2,7 @@
 
 A [Copier](https://copier.readthedocs.io) template for a Terraform-managed Cloudflare and
 GitHub infrastructure repository, with state in object storage (recommended) or HCP
-Terraform. It renders the repository that [infra-copilot](https://github.com/hasansezertasan/infra-copilot)
+Terraform. It renders the repository that [infra-skills](https://github.com/hasansezertasan/infra-skills)
 then sets up and maintains.
 
 ## For agents
@@ -10,23 +10,23 @@ then sets up and maintains.
 Your agent is the interface. Copy this prompt into your coding agent:
 
 ```text
-Install the infra-copilot skills: pick the best installation method for you from
-https://github.com/hasansezertasan/infra-copilot/blob/main/docs/installation.md
+Install the infra-skills plugin: pick the best installation method for you from
+https://github.com/hasansezertasan/infra-skills/blob/main/docs/installation.md
 
 Then render a new infrastructure repository from
 https://github.com/hasansezertasan/copier-infra with copier, in a directory named
 infra. Initialize Git in it and commit the render, then work inside that directory and use
-infra-copilot's setup skill to finish it. Ask me for what you need
+the infra-setup skill to finish it. Ask me for what you need
 (my GitHub owner, the Cloudflare domain and IDs, and the state backend), never ask
 for or read credentials, and ask before you create a repository, change settings or
 secrets, or push.
 ```
 
-The prompt points the agent at infra-copilot's
-[installation page](https://github.com/hasansezertasan/infra-copilot/blob/main/docs/installation.md),
+The prompt points the agent at the infra-skills'
+[installation page](https://github.com/hasansezertasan/infra-skills/blob/main/docs/installation.md),
 which lists the install routes for each host. The template asks only for public
 identifiers; credentials and the rest of the setup (state bucket, plan and apply
-workflows, GitHub Apps, the `production` environment) belong to infra-copilot's setup.
+workflows, GitHub Apps, the `production` environment) belong to infra-setup.
 
 ## For humans
 
@@ -39,7 +39,7 @@ git init && git add -A && git commit -m "chore: scaffold infrastructure reposito
 git remote add origin https://github.com/<owner>/infra
 ```
 
-Copier does not initialize Git, and infra-copilot's setup checks and `copier update` both read
+Copier does not initialize Git, and infra-setup checks and `copier update` both read
 tracked files and `HEAD`, so commit the render before anything else. Run the agent inside
 `infra`.
 
@@ -50,7 +50,7 @@ Copier asks for the backend first:
 | `object-storage` (default, recommended) | `gcs`, `s3` or `azurerm` bucket | GitHub Actions | state bucket and prefix, plus lock table, region or Azure fields where they apply |
 | `hcp` | HCP Terraform workspaces | HCP VCS integration | HCP organization and status check ID; needs a paid tier with team management |
 
-Then ask your agent to use infra-copilot's setup skill in the new repository (hosts that expose
+Then ask your agent to use the infra-setup skill in the new repository (hosts that expose
 plugin commands, such as Claude Code, also offer `/infra-setup`). Never answer with
 credentials; only public identifiers belong in the answers.
 
@@ -72,9 +72,9 @@ Treat any answer that sets the state object's coordinates (`backend`, `hcp_org`,
 state migration, not an answer change. Routing and locking answers (`state_lock_table`,
 `state_region`, `azure_resource_group`) configure access to the same object, so they are not
 migrations. Copier rewrites `backend.tf` but moves
-no state, and infra-copilot's state-transfer check only demands evidence once it detects an
+no state, and infra-skills' state-transfer check only demands evidence once it detects an
 HCP backend in history, so an empty new destination can be accepted and the next plan may
-propose recreating managed resources. Follow infra-copilot's runbook for an HCP cutover, and
+propose recreating managed resources. Follow infra-skills' runbook for an HCP cutover, and
 move state yourself, with the same verification, for any other location change.
 
 ## Layout
