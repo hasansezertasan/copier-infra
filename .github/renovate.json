@@ -1,13 +1,23 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>hasansezertasan/renovate-config"
+    "github>hasansezertasan/renovate-config:python"
   ],
   "packageRules": [
     {
       "description": "Terraform is pinned in mise.toml (mise manager) and in each root's versions.tf required_version (terraform manager). Group them so one PR bumps every copy together; the contract validator rejects a PR that moves only one.",
-      "matchPackageNames": ["terraform", "hashicorp/terraform"],
+      "matchPackageNames": [
+        "terraform",
+        "hashicorp/terraform"
+      ],
       "groupName": "terraform"
+    },
+    {
+      "description": "Freeze everything under template/**. Those files are seed values for projects generated from this template; each generated project ships its own Renovate config and owns its bumps. Managing them here too makes `copier update` conflict, because copier's 3-way merge sees the template render and the downstream file moving the same literal to different values.",
+      "matchFileNames": [
+        "template/**"
+      ],
+      "enabled": false
     }
   ]
 }
