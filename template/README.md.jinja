@@ -11,8 +11,8 @@ maintained with [infra-skills](https://github.com/hasansezertasan/infra-skills).
    sensitive workspace variables, VCS-driven plans{% else %}the state bucket, plan and apply workflows, GitHub Apps and the `production` environment{% endif %}).
 3. Pull template changes later with `uvx copier update`.
 
-Do not commit credentials. Public deployment identifiers live in
-`.infra-copilot/config.md`, rendered from `.copier-answers.yml`; API tokens and GitHub App
+Do not commit credentials. Public deployment identifiers live in the [Config](#config)
+block below, rendered from `.copier-answers.yml`; API tokens and GitHub App
 credentials belong only in {% if backend == 'hcp' %}the corresponding HCP Terraform workspace{% else %}GitHub Actions secrets, with apply credentials only in the `production` environment{% endif %}.
 
 ## Shape
@@ -27,6 +27,90 @@ lock file:
 
 The initial data sources are read-only credential probes. Add managed resources with
 infra-skills after setup. If a resource already exists, import it before applying.
+
+## Config
+
+Public deployment identifiers, never credentials. Rendered by copier from the answers in
+`.copier-answers.yml`: change an answer with `uvx copier update` and review the diff, not
+by hand, so the Terraform backend blocks stay aligned. Only the region between the
+`infra:customization` comments is written by infra-skills and by you (GitHub App data,
+state-transfer evidence, additional providers{% if backend == 'hcp' %}, the HCP status check ID{% endif %} and attestation timestamps); a
+Template update keeps it and rewrites the rest. Keep both comments.
+
+<!-- infra:config start -->
+```yaml
+backend: {{ backend }}
+{%- if backend == 'hcp' %}
+hcp_org: {{ hcp_org | tojson }}
+{%- endif %}
+github_org: {{ github_org | tojson }}
+apex_domain: {{ apex_domain | tojson }}
+cloudflare_account_id: {{ cloudflare_account_id | tojson }}
+cloudflare_zone_id: {{ cloudflare_zone_id | tojson }}
+managed_repos:
+{%- for repo in managed_repos %}
+  - {{ repo | tojson }}
+{%- endfor %}
+{%- if backend == 'object-storage' %}
+state_backend: {{ state_backend }}
+state_bucket: {{ state_bucket | tojson }}
+state_prefix: {{ state_prefix | tojson }}
+{%- if state_backend == 's3' %}
+state_lock_table: {{ state_lock_table | tojson }}
+{%- endif %}
+{%- if state_backend in ['s3', 'azurerm'] %}
+state_region: {{ state_region | tojson }}
+{%- endif %}
+{%- if state_backend == 'azurerm' %}
+azure_storage_account: {{ azure_storage_account | tojson }}
+azure_resource_group: {{ azure_resource_group | tojson }}
+{%- endif %}
+{%- endif %}
+# infra:customization start
+leaf_backends: {}
+state_transfers: {}
+github_apps:
+  plan_app_id: ""
+  apply_app_id: ""
+  reviewed_at: ""
+  plan_manifest_blob: ""
+  apply_manifest_blob: ""
+{%- if backend == 'hcp' %}
+hcp_status_check_id: ""
+{%- endif %}
+additional_providers: []
+# infra:customization end
+```
+<!-- infra:config end -->
+
+## Decisions
+
+Durable provider, authentication, state, and safety choices for this repository. Statuses
+are `proposed`, `locked`, or `superseded`. Record changed decisions here rather than
+silently replacing their history, and never add tokens, private keys, or credentials.
+
+<!-- infra:decisions start -->
+
+| Decision | Choice | Status | Rationale |
+|---|---|---|---|
+{%- if backend == 'hcp' %}
+| Terraform backend | HCP Terraform | locked | Managed remote state, locking, and VCS-driven plans |
+| State boundaries | One HCP workspace per provider leaf | locked | Limits credentials and blast radius by concern |
+{%- else %}
+| Terraform backend | {{ state_backend }} object storage with GitHub Actions CI | locked | State in a private versioned bucket; plans appear in pull requests |
+| State boundaries | One state prefix per provider leaf | locked | Limits credentials and blast radius by concern |
+{%- endif %}
+| Toolchain | Exact pins in `mise.toml` and committed `mise.lock` | locked | Keeps local, CI, and Terraform versions aligned |
+| GitHub authentication | GitHub App | locked | Avoids credentials tied to an individual user |
+{%- if backend == 'hcp' %}
+| Secret storage | Sensitive HCP workspace variables only | locked | Keeps plaintext credentials out of Git and GitHub Actions |
+| Apply policy | Manual confirmation in HCP | locked | Preserves a human review gate for infrastructure changes |
+{%- else %}
+| Secret storage | GitHub Actions secrets; apply credentials only in the `production` environment | locked | Keeps write access to `main`-only jobs |
+| Apply policy | `production` environment on `main` with required reviewers | locked | Preserves a human review gate for infrastructure changes |
+{%- endif %}
+
+<!-- infra:decisions end -->
 
 ## Development
 

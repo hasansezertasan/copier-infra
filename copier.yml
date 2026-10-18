@@ -30,12 +30,6 @@ hcp_org:
     Use letters, digits, hyphens and underscores only.
     {% endif %}
 
-hcp_status_check_id:
-  type: str
-  help: HCP Terraform GitHub status check ID (leave empty until known)
-  when: "{{ backend == 'hcp' }}"
-  default: ""
-
 state_backend:
   type: str
   help: Terraform state backend type

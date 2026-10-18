@@ -5,9 +5,8 @@ root=$(git rev-parse --show-toplevel)
 cd "$root"
 
 required_files=(
-  .infra-copilot/config.md
+  README.md
   .copier-answers.yml
-  .infra-copilot/decisions.md
   mise.toml
   mise.lock
   terraform/cloudflare/versions.tf
@@ -31,15 +30,29 @@ for path in "${required_files[@]}"; do
   fi
 done
 
-config_path=.infra-copilot/config.md
+config_path=README.md
+
+for marker in '<!-- infra:config start -->' '<!-- infra:config end -->' \
+  '<!-- infra:decisions start -->' '<!-- infra:decisions end -->' \
+  '# infra:customization start' '# infra:customization end'; do
+  if [[ $(grep -Fxc "$marker" "$config_path") -ne 1 ]]; then
+    printf '%s must contain exactly one "%s" line\n' "$config_path" "$marker" >&2
+    exit 1
+  fi
+done
 
 if grep -Fq 'replace-with-' "$config_path"; then
   printf '%s contains unresolved placeholders\n' "$config_path" >&2
   exit 1
 fi
 
+# The Config block is the fenced YAML between the infra:config markers in the README.
+config_block() {
+  sed -n '/^<!-- infra:config start -->$/,/^<!-- infra:config end -->$/p' "$config_path"
+}
+
 config_value() {
-  sed -nE "s/^$1:[[:space:]]*\"?([^\"[:space:]]+)\"?[[:space:]]*\$/\\1/p" "$config_path"
+  config_block | sed -nE "s/^$1:[[:space:]]*\"?([^\"[:space:]]+)\"?[[:space:]]*\$/\\1/p"
 }
 
 backend=$(config_value backend)
@@ -54,7 +67,7 @@ esac
 config_keys+=(backend github_org apex_domain cloudflare_account_id cloudflare_zone_id managed_repos)
 
 for key in "${config_keys[@]}"; do
-  if ! grep -Eq "^${key}:" "$config_path"; then
+  if ! config_block | grep -Eq "^${key}:"; then
     printf '%s is missing %s\n' "$config_path" "$key" >&2
     exit 1
   fi
@@ -138,7 +151,7 @@ done
 
 identity_found=false
 while IFS= read -r -d '' path; do
-  [[ "$path" == .infra-copilot/config.md || "$path" == .copier-answers.yml ]] && continue
+  [[ "$path" == README.md || "$path" == .copier-answers.yml ]] && continue
   if grep -Eq '(^|[^[:xdigit:]])[[:xdigit:]]{32}([^[:xdigit:]]|$)' -- "$path" 2>/dev/null; then
     identity_found=true
     break
