@@ -78,8 +78,8 @@ state_lock_table:
 
 state_region:
   type: str
-  help: Region (S3) or Azure location
-  when: "{{ backend == 'object-storage' and state_backend in ['s3', 'azurerm'] }}"
+  help: Region (S3), Azure location, or GCS bucket location
+  when: "{{ backend == 'object-storage' }}"
   validator: >-
     {% if not state_region %}Required for this backend.{% endif %}
 

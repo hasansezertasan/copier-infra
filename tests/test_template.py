@@ -12,6 +12,7 @@ ANSWERS = [
     "--data=backend=object-storage",
     "--data=state_backend=gcs",
     "--data=state_bucket=example-state",
+    "--data=state_region=europe-west1",
 ]
 
 
@@ -121,7 +122,17 @@ def test_readme_config_block_keeps_the_backend_specific_answers(tmp_path, versio
         "gcs",
         "example-state",
     )
+    assert parsed["state_region"] == "europe-west1"
     assert "hcp_org" not in parsed
+
+
+def test_gcs_requires_a_state_region(tmp_path, versioned_template):
+    answers = [answer for answer in OBJECT_STORAGE if not answer.startswith("--data=state_region=")]
+    result = copier(
+        "copy", "--defaults", *COMMON, *answers, str(versioned_template), str(tmp_path / "project"), cwd=tmp_path
+    )
+    assert result.returncode != 0
+    assert "state_region" in result.stderr
 
 
 @pytest.mark.parametrize("backend_answers", BACKENDS)
@@ -155,3 +166,41 @@ def test_no_old_state_directory_or_legacy_settings_file_is_rendered(
         if path.is_file() and b"infra-copilot" in path.read_bytes()
     ]
     assert leftovers == []
+
+
+def test_update_of_a_gcs_repo_without_a_state_region_needs_it_supplied(tmp_path, versioned_template):
+    # Rewind the template to before gcs asked for a region, and render a gcs repo from that.
+    current = git("rev-parse", "HEAD", cwd=versioned_template).stdout.strip()
+    questions = versioned_template / "copier.yml"
+    questions.write_text(
+        questions.read_text().replace(
+            "when: \"{{ backend == 'object-storage' }}\"\n  validator: >-\n    {% if not state_region",
+            "when: \"{{ backend == 'object-storage' and state_backend in ['s3', 'azurerm'] }}\"\n  validator: >-\n    {% if not state_region",
+        )
+    )
+    readme = versioned_template / "template" / "README.md.jinja"
+    readme.write_text(
+        readme.read_text().replace(
+            "state_region: {{ state_region | tojson }}",
+            "{%- if state_backend in ['s3', 'azurerm'] %}\nstate_region: {{ state_region | tojson }}\n{%- endif %}",
+        )
+    )
+    git("commit", "-q", "-am", "chore: before gcs asked for a region", cwd=versioned_template)
+    git("tag", "-f", "v0.0.0", cwd=versioned_template)
+    dest = render(tmp_path, versioned_template, [a for a in OBJECT_STORAGE if "state_region" not in a])
+    git("init", "-q", "-b", "main", cwd=dest)
+    git("add", "-A", cwd=dest)
+    git("commit", "-q", "-m", "chore: render", cwd=dest)
+
+    git("checkout", current, "--", ".", cwd=versioned_template)
+    git("commit", "-q", "-m", "feat: ask for a gcs state region", cwd=versioned_template)
+    git("tag", "v0.0.1", cwd=versioned_template)
+
+    refused = copier("update", "--defaults", cwd=dest)
+    assert refused.returncode != 0
+    assert "state_region" in refused.stderr
+
+    result = copier("update", "--defaults", "--data=state_region=europe-west1", cwd=dest)
+    assert result.returncode == 0, result.stderr
+    parsed = yaml.safe_load("\n".join(config_block((dest / "README.md").read_text())))
+    assert parsed["state_region"] == "europe-west1"

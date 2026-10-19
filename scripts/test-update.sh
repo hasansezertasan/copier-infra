@@ -24,6 +24,7 @@ copier copy --trust --defaults \
   --data backend=object-storage \
   --data state_backend=gcs \
   --data state_bucket=example-state \
+  --data state_region=europe-west1 \
   --data github_org=example-org \
   --data apex_domain=example.com \
   --data cloudflare_account_id=0123456789abcdef0123456789abcdef \
