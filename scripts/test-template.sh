@@ -16,7 +16,7 @@ common=(
 # name:extra copier answers
 cases=(
   "hcp:--data backend=hcp --data hcp_org=example-org"
-  "gcs:--data backend=object-storage --data state_backend=gcs --data state_bucket=example-state"
+  "gcs:--data backend=object-storage --data state_backend=gcs --data state_bucket=example-state --data state_region=europe-west1"
   "s3:--data backend=object-storage --data state_backend=s3 --data state_bucket=example-state --data state_region=us-east-1 --data state_lock_table=example-locks"
   "azurerm:--data backend=object-storage --data state_backend=azurerm --data state_bucket=tfstate --data azure_storage_account=examplestate --data azure_resource_group=example-rg --data state_region=westeurope"
 )

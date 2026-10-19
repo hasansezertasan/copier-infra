@@ -12,6 +12,7 @@ ANSWERS = [
     "--data=backend=object-storage",
     "--data=state_backend=gcs",
     "--data=state_bucket=example-state",
+    "--data=state_region=europe-west1",
 ]
 
 
@@ -121,7 +122,17 @@ def test_readme_config_block_keeps_the_backend_specific_answers(tmp_path, versio
         "gcs",
         "example-state",
     )
+    assert parsed["state_region"] == "europe-west1"
     assert "hcp_org" not in parsed
+
+
+def test_gcs_requires_a_state_region(tmp_path, versioned_template):
+    answers = [answer for answer in OBJECT_STORAGE if not answer.startswith("--data=state_region=")]
+    result = copier(
+        "copy", "--defaults", *COMMON, *answers, str(versioned_template), str(tmp_path / "project"), cwd=tmp_path
+    )
+    assert result.returncode != 0
+    assert "state_region" in result.stderr
 
 
 @pytest.mark.parametrize("backend_answers", BACKENDS)
