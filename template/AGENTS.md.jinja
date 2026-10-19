@@ -14,7 +14,9 @@ This repository is the consuming infrastructure repository for `infra-skills`.
   state object's coordinates (`backend`, `hcp_org`, `state_backend`, `state_bucket`,
   `state_prefix`, `azure_storage_account`) is a state migration; follow infra-skills'
   runbook. Routing and locking answers (`state_lock_table`, `state_region`,
-  `azure_resource_group`) configure access to the same object and are not migrations.
+  `azure_resource_group`) configure access to the same object and are not migrations,
+  except `state_region` on `gcs`: it is the bucket's location, which cannot change after
+  creation, so changing it is a state migration.
 - Edit the Config block only between its `infra:customization` comments.
 - Record durable architecture, authentication, state, and safety choices in the
   Decisions table in `README.md`.

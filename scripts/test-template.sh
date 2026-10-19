@@ -27,7 +27,7 @@ for entry in "${cases[@]}"; do
   extra=(${entry#*:})
   out="$work/$name"
   printf '== rendering %s\n' "$name"
-  copier copy --trust --defaults "${common[@]}" "${extra[@]}" "$root" "$out" >/dev/null
+  copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" "${extra[@]}" "$root" "$out" >/dev/null
   (
     cd "$out"
     git init -q
@@ -43,7 +43,7 @@ done
 
 # An identifier outside the README's Config block must be caught.
 leak="$work/leak"
-copier copy --trust --defaults "${common[@]}" --data backend=hcp --data hcp_org=example-org \
+copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=hcp --data hcp_org=example-org \
   "$root" "$leak" >/dev/null
 (
   cd "$leak"
@@ -60,15 +60,16 @@ copier copy --trust --defaults "${common[@]}" --data backend=hcp --data hcp_org=
 rejects() {
   local label=$1
   shift
-  if copier copy --trust --defaults "${common[@]}" --data backend=object-storage "$@" \
+  if copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=object-storage "$@" \
     "$root" "$work/bad-$label" >/dev/null 2>&1; then
     printf 'accepted an invalid answer: %s\n' "$label" >&2
     exit 1
   fi
 }
-rejects gcs-uppercase --data state_backend=gcs --data state_bucket=Bad_Bucket
-rejects gcs-short --data state_backend=gcs --data state_bucket=ab
-rejects gcs-trailing-hyphen --data state_backend=gcs --data state_bucket=state-
+rejects gcs-uppercase --data state_backend=gcs --data state_bucket=Bad_Bucket --data state_region=europe-west1
+rejects gcs-short --data state_backend=gcs --data state_bucket=ab --data state_region=europe-west1
+rejects gcs-trailing-hyphen --data state_backend=gcs --data state_bucket=state- --data state_region=europe-west1
+rejects gcs-no-region --data state_backend=gcs --data state_bucket=example-state
 rejects s3-underscore --data state_backend=s3 --data state_bucket=foo_bar \
   --data state_region=us-east-1 --data state_lock_table=locks
 rejects s3-long --data state_backend=s3 --data "state_bucket=$(printf 'a%.0s' {1..64})" \
