@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/hasansezertasan/copier-infra/compare/v0.1.0...v0.2.0) (2026-10-19)
+
+
+### Features
+
+* **template:** ask for state_region when the backend is gcs ([#29](https://github.com/hasansezertasan/copier-infra/issues/29)) ([fb132fa](https://github.com/hasansezertasan/copier-infra/commit/fb132fac5fd101d7cb1f8b4e2d2260b7d360ebe8))
+
 ## 0.1.0 (2026-10-18)
 
 
