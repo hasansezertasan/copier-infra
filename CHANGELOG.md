@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/hasansezertasan/copier-infra/compare/v0.2.0...v0.3.0) (2026-10-23)
+
+
+### Features
+
+* support S3-compatible state backends ([#39](https://github.com/hasansezertasan/copier-infra/issues/39)) ([619dc8c](https://github.com/hasansezertasan/copier-infra/commit/619dc8c7dd271ed8abadfb19826c8cadb27fd592))
+
 ## [0.2.0](https://github.com/hasansezertasan/copier-infra/compare/v0.1.0...v0.2.0) (2026-10-19)
 
 
