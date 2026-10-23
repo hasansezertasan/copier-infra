@@ -75,7 +75,7 @@ state_endpoint:
   when: "{{ backend == 'object-storage' and state_backend == 's3' }}"
   default: ""
   validator: >-
-    {% if state_endpoint and not (state_endpoint | regex_search('^https?://[^/\\s]+')) %}
+    {% if state_endpoint and not (state_endpoint | regex_search('^https?://[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$')) %}
     Expected an http(s) URL such as https://<account-id>.r2.cloudflarestorage.com.
     {% endif %}
 

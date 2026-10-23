@@ -78,6 +78,10 @@ rejects s3-long --data state_backend=s3 --data "state_bucket=$(printf 'a%.0s' {1
 rejects s3-no-lock-no-endpoint --data state_backend=s3 --data state_bucket=example-state --data state_region=us-east-1
 rejects s3-bad-endpoint --data state_backend=s3 --data state_bucket=example-state --data state_region=auto \
   --data state_endpoint=r2.cloudflarestorage.com
+rejects s3-endpoint-no-host --data state_backend=s3 --data state_bucket=example-state --data state_region=auto \
+  --data 'state_endpoint=https://?'
+rejects s3-endpoint-trailing-data --data state_backend=s3 --data state_bucket=example-state --data state_region=auto \
+  --data 'state_endpoint=https://example.com trailing-data'
 rejects azure-double-hyphen --data state_backend=azurerm --data state_bucket=a--b \
   --data azure_storage_account=examplestate --data azure_resource_group=rg --data state_region=westeurope
 rejects azure-underscore --data state_backend=azurerm --data state_bucket=tf_state \
