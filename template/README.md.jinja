@@ -56,6 +56,7 @@ state_backend: {{ state_backend }}
 state_bucket: {{ state_bucket | tojson }}
 state_prefix: {{ state_prefix | tojson }}
 {%- if state_backend == 's3' %}
+state_endpoint: {{ state_endpoint | tojson }}
 state_lock_table: {{ state_lock_table | tojson }}
 {%- endif %}
 state_region: {{ state_region | tojson }}

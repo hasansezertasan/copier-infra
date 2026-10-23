@@ -69,12 +69,23 @@ state_prefix:
     Use a relative path without leading or trailing slashes.
     {% endif %}
 
+state_endpoint:
+  type: str
+  help: S3-compatible endpoint URL (Cloudflare R2, MinIO); leave empty for AWS S3
+  when: "{{ backend == 'object-storage' and state_backend == 's3' }}"
+  default: ""
+  validator: >-
+    {% if state_endpoint and not (state_endpoint | regex_search('^https?://[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?(:[0-9]{1,5})?(/[A-Za-z0-9._~/-]*)?$')) %}
+    Expected an http(s) URL such as https://<account-id>.r2.cloudflarestorage.com.
+    {% endif %}
+
 state_lock_table:
   type: str
-  help: DynamoDB table used for S3 state locking
+  help: DynamoDB table used for S3 state locking; leave empty with an S3-compatible endpoint to use native lockfile locking
   when: "{{ backend == 'object-storage' and state_backend == 's3' }}"
+  default: ""
   validator: >-
-    {% if not state_lock_table %}Required for the s3 backend.{% endif %}
+    {% if not state_lock_table and not state_endpoint %}Required for AWS S3 (set state_endpoint to use lockfile locking instead).{% endif %}
 
 state_region:
   type: str
