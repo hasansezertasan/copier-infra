@@ -15,6 +15,24 @@ terraform {
     prefix = "{{ state_prefix }}/github"
   }
 }
+{%- elif state_backend == 's3' and state_endpoint -%}
+terraform {
+  backend "s3" {
+    bucket = "{{ state_bucket }}"
+    key    = "{{ state_prefix }}/github/terraform.tfstate"
+    region = "{{ state_region }}"
+
+    endpoints = {
+      s3 = "{{ state_endpoint }}"
+    }
+    use_lockfile                = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
+  }
+}
 {%- elif state_backend == 's3' -%}
 terraform {
   backend "s3" {

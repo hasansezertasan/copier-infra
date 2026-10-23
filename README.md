@@ -47,7 +47,7 @@ Copier asks for the backend first:
 
 | Backend | State | CI | Extra answers |
 |---|---|---|---|
-| `object-storage` (default, recommended) | `gcs`, `s3` or `azurerm` bucket | GitHub Actions | state bucket, prefix and region (S3 region, Azure location or GCS bucket location), plus the lock table (S3) or Azure fields |
+| `object-storage` (default, recommended) | `gcs`, `s3` or `azurerm` bucket | GitHub Actions | state bucket, prefix and region (S3 region, Azure location or GCS bucket location), plus the lock table (AWS S3), an optional endpoint for S3-compatible services such as Cloudflare R2 (which then lock with `use_lockfile`), or Azure fields |
 | `hcp` | HCP Terraform workspaces | HCP VCS integration | HCP organization (infra-skills fills in the status check ID later); needs a paid tier with team management |
 
 Then ask your agent to use the infra-setup skill in the new repository (hosts that expose
@@ -72,7 +72,7 @@ the result. Review the diff of every update; `uvx copier recopy` re-renders over
 use it only for deliberate recovery, on a clean tree.
 
 Treat any answer that sets the state object's coordinates (`backend`, `hcp_org`,
-`state_backend`, `state_bucket`, `state_prefix`, `azure_storage_account`) after rendering as a
+`state_backend`, `state_endpoint`, `state_bucket`, `state_prefix`, `azure_storage_account`) after rendering as a
 state migration, not an answer change. Routing and locking answers (`state_lock_table`,
 `state_region`, `azure_resource_group`) configure access to the same object, so they are not
 migrations. The exception is `state_region` on `gcs`, which is the bucket's location: it cannot
