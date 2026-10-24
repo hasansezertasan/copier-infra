@@ -21,10 +21,10 @@ backend:
 
 github_org:
   type: str
-  help: GitHub organization that owns the managed repositories
+  help: GitHub organization or personal account that owns the managed repositories
   validator: >-
     {% if not (github_org | regex_search('^[A-Za-z0-9][A-Za-z0-9-]*$')) %}
-    Not a valid GitHub organization name.
+    Not a valid GitHub organization or user name.
     {% endif %}
 
 hcp_org:
