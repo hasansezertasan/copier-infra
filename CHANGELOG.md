@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/hasansezertasan/copier-infra/compare/v0.4.0...v0.4.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* probe the GitHub owner with github_user so personal accounts work ([#48](https://github.com/hasansezertasan/copier-infra/issues/48)) ([a27356c](https://github.com/hasansezertasan/copier-infra/commit/a27356cc707aaf605eb35ba95f0d7b697ab51786))
+
 ## [0.4.0](https://github.com/hasansezertasan/copier-infra/compare/v0.3.0...v0.4.0) (2026-10-24)
 
 
