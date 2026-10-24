@@ -161,6 +161,26 @@ def test_readme_decisions_table_is_a_fixed_section(tmp_path, versioned_template,
     assert any(row[0] == "Apply policy" for row in rows)
 
 
+def test_decisions_do_not_claim_a_versioned_bucket_for_an_s3_compatible_store(tmp_path, versioned_template):
+    s3_compatible = [
+        "--data=backend=object-storage",
+        "--data=state_backend=s3",
+        "--data=state_bucket=example-state",
+        "--data=state_region=auto",
+        "--data=state_endpoint=https://example.r2.cloudflarestorage.com",
+    ]
+    for answers, claims_versioned in ((s3_compatible, False), (OBJECT_STORAGE, True)):
+        dest = render(tmp_path, versioned_template, answers, name=f"p{int(claims_versioned)}")
+        rows = [
+            line for line in (dest / "README.md").read_text().splitlines()
+            if line.startswith("| Terraform backend |")
+        ]
+        assert len(rows) == 1
+        assert ("private versioned bucket" in rows[0]) is claims_versioned
+        if not claims_versioned:
+            assert "S3-compatible object storage" in rows[0]
+
+
 @pytest.mark.parametrize("backend_answers", BACKENDS)
 def test_no_old_state_directory_or_legacy_settings_file_is_rendered(
     tmp_path, versioned_template, backend_answers
