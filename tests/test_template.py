@@ -81,9 +81,9 @@ BACKENDS = pytest.param(HCP, id="hcp"), pytest.param(OBJECT_STORAGE, id="object-
 @pytest.mark.parametrize("backend_answers", BACKENDS)
 def test_readme_links_back_to_the_template(tmp_path, versioned_template, backend_answers):
     readme = (render(tmp_path, versioned_template, backend_answers) / "README.md").read_text()
-    assert readme.rstrip().endswith(
-        "Generated from [copier-infra](https://github.com/hasansezertasan/copier-infra)."
-    )
+    attribution = "Generated from [copier-infra](https://github.com/hasansezertasan/copier-infra)."
+    assert readme.count(attribution) == 1
+    assert readme.rstrip().endswith(attribution)
 
 
 @pytest.mark.parametrize("backend_answers", BACKENDS)
