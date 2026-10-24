@@ -152,7 +152,7 @@ done
 # An S3-compatible endpoint such as Cloudflare R2's embeds the account ID in its host, so the
 # configured endpoint itself may appear in the backend blocks; nothing else may.
 state_endpoint=''
-if [[ "$backend" == object-storage ]]; then
+if [[ "$backend" == object-storage && "$state_backend" == s3 ]]; then
   state_endpoint=$(config_value state_endpoint)
 fi
 

@@ -75,6 +75,24 @@ copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=obje
   fi
 )
 
+# A stale state_endpoint left in a non-S3 repository must not exempt anything.
+stale="$work/stale-endpoint"
+copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=object-storage --data state_backend=gcs \
+  --data state_bucket=example-state --data state_region=europe-west1 "$root" "$stale" >/dev/null
+(
+  cd "$stale"
+  git init -q
+  endpoint=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com
+  sed -i.bak "s|^state_prefix: .*|&\nstate_endpoint: \"$endpoint\"|" README.md
+  rm -f README.md.bak
+  printf '# %s\n' "$endpoint" >> terraform/cloudflare/backend.tf
+  git add -A
+  if ./scripts/validate-template.sh >/dev/null 2>&1; then
+    printf 'validator exempted an endpoint in a non-S3 repository\n' >&2
+    exit 1
+  fi
+)
+
 # The rejection paths must reject.
 rejects() {
   local label=$1
