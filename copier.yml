@@ -1,5 +1,12 @@
 _subdirectory: template
 _min_copier_version: "9.4.0"
+
+# Seeded once, then owned by the project: cobo (cobo.lock) manages these files in the
+# rendered repository, so `copier update` must not merge the template copies into them.
+# See docs/adr/0005-leave-cobo-managed-files-to-the-project.md.
+_skip_if_exists:
+  - .gitignore
+  - .editorconfig
 _message_after_copy: |
   Rendered into {{ _copier_conf.dst_path }}.
   Next: commit, then ask your agent to use the infra-setup skill to finish state, CI and credential setup.
