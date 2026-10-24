@@ -94,6 +94,9 @@ silently replacing their history, and never add tokens, private keys, or credent
 {%- if backend == 'hcp' %}
 | Terraform backend | HCP Terraform | locked | Managed remote state, locking, and VCS-driven plans |
 | State boundaries | One HCP workspace per provider leaf | locked | Limits credentials and blast radius by concern |
+{%- elif state_endpoint | default('') %}
+| Terraform backend | S3-compatible object storage with GitHub Actions CI | locked | State in a private bucket; whether it is versioned depends on the store, so record that in a State history decision; plans appear in pull requests |
+| State boundaries | One state prefix per provider leaf | locked | Limits credentials and blast radius by concern |
 {%- else %}
 | Terraform backend | {{ state_backend }} object storage with GitHub Actions CI | locked | State in a private versioned bucket; plans appear in pull requests |
 | State boundaries | One state prefix per provider leaf | locked | Limits credentials and blast radius by concern |
