@@ -149,6 +149,13 @@ for secret_pattern in \
   fi
 done
 
+# An S3-compatible endpoint such as Cloudflare R2's embeds the account ID in its host, so the
+# configured endpoint itself may appear in the backend blocks; nothing else may.
+state_endpoint=''
+if [[ "$backend" == object-storage && "$state_backend" == s3 ]]; then
+  state_endpoint=$(config_value state_endpoint)
+fi
+
 identity_found=false
 while IFS= read -r -d '' path; do
   [[ "$path" == .copier-answers.yml ]] && continue
@@ -157,6 +164,9 @@ while IFS= read -r -d '' path; do
     content=$(sed '/^<!-- infra:config start -->$/,/^<!-- infra:config end -->$/d' "$path")
   else
     content=$(cat -- "$path" 2>/dev/null || true)
+    if [[ -n "$state_endpoint" && "$path" == terraform/*/backend.tf ]]; then
+      content=${content//"$state_endpoint"/}
+    fi
   fi
   if grep -Eq '(^|[^[:xdigit:]])[[:xdigit:]]{32}([^[:xdigit:]]|$)' <<<"$content"; then
     identity_found=true
