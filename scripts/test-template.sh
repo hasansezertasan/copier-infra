@@ -19,6 +19,7 @@ cases=(
   "gcs:--data backend=object-storage --data state_backend=gcs --data state_bucket=example-state --data state_region=europe-west1"
   "s3:--data backend=object-storage --data state_backend=s3 --data state_bucket=example-state --data state_region=us-east-1 --data state_lock_table=example-locks"
   "r2:--data backend=object-storage --data state_backend=s3 --data state_bucket=example-state --data state_region=auto --data state_endpoint=https://example.r2.cloudflarestorage.com"
+  "r2-account:--data backend=object-storage --data state_backend=s3 --data state_bucket=example-state --data state_region=auto --data state_endpoint=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com"
   "azurerm:--data backend=object-storage --data state_backend=azurerm --data state_bucket=tfstate --data azure_storage_account=examplestate --data azure_resource_group=example-rg --data state_region=westeurope"
 )
 
@@ -53,6 +54,23 @@ copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=hcp 
   git add -A
   if ./scripts/validate-template.sh >/dev/null 2>&1; then
     printf 'validator missed an identifier outside the Config block\n' >&2
+    exit 1
+  fi
+)
+
+# The endpoint's own account ID is allowed in backend.tf, but any other identifier there is not.
+endpoint_leak="$work/endpoint-leak"
+copier copy --trust --defaults --vcs-ref=HEAD "${common[@]}" --data backend=object-storage --data state_backend=s3 \
+  --data state_bucket=example-state --data state_region=auto \
+  --data state_endpoint=https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com \
+  "$root" "$endpoint_leak" >/dev/null
+(
+  cd "$endpoint_leak"
+  git init -q
+  printf '# fedcba9876543210fedcba9876543210\n' >> terraform/cloudflare/backend.tf
+  git add -A
+  if ./scripts/validate-template.sh >/dev/null 2>&1; then
+    printf 'validator missed an identifier next to the endpoint in backend.tf\n' >&2
     exit 1
   fi
 )
