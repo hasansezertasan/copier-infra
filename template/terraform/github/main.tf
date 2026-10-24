@@ -9,9 +9,10 @@ locals {
 
 # This lookup always exists, so configuration invariants remain blocking even when
 # managed_repos is accidentally empty.
-data "github_organization" "configured" {
-  name         = local.infra_config.github_org
-  summary_only = true
+# /users/{name} resolves organizations and personal accounts alike, unlike the
+# organization-only endpoint, so the same root works for either owner.
+data "github_user" "configured" {
+  username = local.infra_config.github_org
 
   lifecycle {
     precondition {

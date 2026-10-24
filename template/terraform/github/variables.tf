@@ -1,5 +1,5 @@
 variable "github_owner" {
-  description = "GitHub organization that owns the managed repositories."
+  description = "GitHub organization or personal account that owns the managed repositories."
   type        = string
 }
 

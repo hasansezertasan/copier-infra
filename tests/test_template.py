@@ -182,6 +182,16 @@ def test_decisions_do_not_claim_a_versioned_bucket_for_an_s3_compatible_store(tm
 
 
 @pytest.mark.parametrize("backend_answers", BACKENDS)
+def test_github_root_probes_the_owner_without_an_organization_only_endpoint(
+    tmp_path, versioned_template, backend_answers
+):
+    # /orgs/{name} is a 404 for a personal account, which would fail every plan.
+    main = (render(tmp_path, versioned_template, backend_answers) / "terraform/github/main.tf").read_text()
+    assert 'data "github_user" "configured"' in main
+    assert "github_organization" not in main
+
+
+@pytest.mark.parametrize("backend_answers", BACKENDS)
 def test_no_old_state_directory_or_legacy_settings_file_is_rendered(
     tmp_path, versioned_template, backend_answers
 ):
