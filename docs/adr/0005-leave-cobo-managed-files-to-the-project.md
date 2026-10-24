@@ -19,5 +19,6 @@ copy, so the next change to the template's `.gitignore` would conflict.
 ## Decision Outcome
 
 `.gitignore` and `.editorconfig` are listed in `_skip_if_exists`. A new repository gets
-the template's copies; after that they belong to the project and `copier update` never
-touches them. `.gitattributes` is not rendered by this template, so it needs no entry.
+the template's copies; after that they belong to the project: `copier update` preserves
+the files that exist and does not merge template changes into them. A project that deletes
+one of them gets it reseeded from the template on the next update. `.gitattributes` is not rendered by this template, so it needs no entry.

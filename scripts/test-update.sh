@@ -30,9 +30,17 @@ copier copy --trust --defaults \
   --data cloudflare_account_id=0123456789abcdef0123456789abcdef \
   --data cloudflare_zone_id=fedcba9876543210fedcba9876543210 \
   "$src" "$dst" >/dev/null
+for seeded in .gitignore .editorconfig; do
+  [ -f "$dst/$seeded" ] || { printf 'update test failed: initial render did not seed %s\n' "$seeded" >&2; exit 1; }
+done
 git init -q "$dst"
 git_in "$dst" add -A
 git_in "$dst" commit -q -m "chore: initial render"
+
+# A consumer that replaced the seeded files with cobo-managed ones keeps them across an update.
+printf '# cobo-managed\n' > "$dst/.gitignore"
+printf 'root = true\n# cobo-managed\n' > "$dst/.editorconfig"
+git_in "$dst" commit -q -am "chore: manage boilerplate with cobo"
 
 # Consumer edit that the update must preserve.
 awk '/^<!-- infra:decisions end -->$/ { print "| Local choice | kept | locked | Added by the consumer |"; print "" } { print }' \
@@ -45,6 +53,8 @@ git_in "$dst" commit -q -am "docs: record a local decision and attestation"
 
 # Template change in v1.0.1.
 printf '\nAdded in v1.0.1.\n' >> "$src/template/terraform/README.md"
+printf '# Added in v1.0.1.\n' >> "$src/template/.gitignore"
+printf '# Added in v1.0.1.\n' >> "$src/template/.editorconfig"
 git_in "$src" commit -q -am "feat: extend the Terraform README"
 git_in "$src" tag v1.0.1
 
@@ -57,6 +67,10 @@ grep -Fq 'Local choice' "$dst/README.md" || fail "local edit lost"
 grep -Fq 'reviewed_at: "2026-01-01"' "$dst/README.md" || fail "attestation inside the customization markers lost"
 grep -Fq '_commit: v1.0.1' "$dst/.copier-answers.yml" || fail "answers file not advanced to v1.0.1"
 grep -Fq 'state_bucket: example-state' "$dst/.copier-answers.yml" || fail "answers lost"
+for seeded in .gitignore .editorconfig; do
+  grep -Fq '# cobo-managed' "$dst/$seeded" || fail "$seeded edit lost"
+  if grep -Fq 'Added in v1.0.1.' "$dst/$seeded"; then fail "$seeded was updated from the template"; fi
+done
 if grep -rq '^<<<<<<<' "$dst" --exclude-dir=.git; then fail "merge conflict markers"; fi
 
 git_in "$dst" add -A
