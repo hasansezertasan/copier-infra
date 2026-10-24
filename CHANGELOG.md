@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/hasansezertasan/copier-infra/compare/v0.3.0...v0.4.0) (2026-10-24)
+
+
+### Features
+
+* add a back reference to the template in the generated README ([#42](https://github.com/hasansezertasan/copier-infra/issues/42)) ([1970b3b](https://github.com/hasansezertasan/copier-infra/commit/1970b3b0752666d3d4e5fbe22caba27c31c74a48))
+* leave the generated gitignore and editorconfig to the project ([#46](https://github.com/hasansezertasan/copier-infra/issues/46)) ([e600d4f](https://github.com/hasansezertasan/copier-infra/commit/e600d4f16a1963f0e0293930e7e7b29bf38cc1a8))
+
+
+### Bug Fixes
+
+* allow the configured S3-compatible endpoint in backend.tf ([#47](https://github.com/hasansezertasan/copier-infra/issues/47)) ([d432029](https://github.com/hasansezertasan/copier-infra/commit/d432029fcd0ebfd10b938d263bf9431189ef1e8c))
+* stop claiming a versioned bucket for S3-compatible state stores ([#45](https://github.com/hasansezertasan/copier-infra/issues/45)) ([d689b74](https://github.com/hasansezertasan/copier-infra/commit/d689b74075dc603589e2ba85519dd91acfa3cc48))
+
 ## [0.3.0](https://github.com/hasansezertasan/copier-infra/compare/v0.2.0...v0.3.0) (2026-10-23)
 
 
