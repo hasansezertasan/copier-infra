@@ -1,7 +1,6 @@
 # Infrastructure
 
-Terraform-managed Cloudflare and GitHub infrastructure for `{{ github_org }}` ({% if backend == 'hcp' %}state and runs in HCP Terraform{% else %}state in {{ state_backend }} object storage, CI in GitHub Actions{% endif %}), generated
-from [copier-infra](https://github.com/hasansezertasan/copier-infra) and designed to be
+Terraform-managed Cloudflare and GitHub infrastructure for `{{ github_org }}` ({% if backend == 'hcp' %}state and runs in HCP Terraform{% else %}state in {{ state_backend }} object storage, CI in GitHub Actions{% endif %}), designed to be
 maintained with [infra-skills](https://github.com/hasansezertasan/infra-skills).
 
 ## Start here
@@ -130,3 +129,5 @@ confirmation in HCP Terraform.
 apply workflows are added by infra-setup; applies run from `main` in the
 `production` environment.
 {%- endif %}
+
+Generated from [copier-infra](https://github.com/hasansezertasan/copier-infra).
