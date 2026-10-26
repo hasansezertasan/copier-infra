@@ -2,7 +2,7 @@
 [tools]
 # Python comes from .python-version (shared with uv and Renovate); PYTHON_VERSION overrides it.
 python = "{{ get_env(name='PYTHON_VERSION', default=read_file(path=config_root ~ '/.python-version') | trim) }}"
-uv = "0.13.2"
+uv = "0.13.5"
 # cobo generates the sealed boilerplate blocks (.gitignore, .gitattributes, .editorconfig).
 "pipx:cobo" = "0.6.0"
 
